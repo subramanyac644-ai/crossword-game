@@ -9,7 +9,7 @@ describe('Crossword Logic Core', () => {
     isBlocked,
     row: 0,
     col: 0,
-    status: 'neutral'
+    status: null
   });
 
   describe('isSolved', () => {

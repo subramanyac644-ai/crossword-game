@@ -11,8 +11,8 @@ describe('useCrossword Scoring Framework', () => {
     elapsedSeconds: 0,
     grid: [
       [
-        { correctLetter: 'A', userLetter: '', isBlocked: false, row: 0, col: 0, status: 'neutral' },
-        { correctLetter: 'B', userLetter: '', isBlocked: false, row: 0, col: 1, status: 'neutral' }
+        { correctLetter: 'A', userLetter: '', isBlocked: false, row: 0, col: 0, status: null },
+        { correctLetter: 'B', userLetter: '', isBlocked: false, row: 0, col: 1, status: null }
       ]
     ],
     words: [
