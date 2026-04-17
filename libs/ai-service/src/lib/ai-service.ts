@@ -1,6 +1,6 @@
 import { Word, AIWordResponse } from '@game-engine/shared-types';
 
-const GEMINI_API_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+// Base URL for Gemini API (currently dynamic)
 
 let cachedModelName: string | null = null;
 const blacklistedModels = new Set<string>();
@@ -24,7 +24,7 @@ async function discoverBestModel(apiKey: string): Promise<string> {
       throw new Error(`Model Discovery failed (${response.status}). Key status might be restricted.`);
     }
 
-    const data = await response.json();
+    const data: any = await response.json();
     const models: any[] = data.models || [];
     
     // Preference: prioritize fast, high-quota models that aren't blacklisted
@@ -235,11 +235,11 @@ export async function generateCrosswordFromText(
           attempts++;
           continue; 
         }
-        const errData = await response.json().catch(() => ({}));
+        const errData: any = await response.json().catch(() => ({}));
         throw new Error(`API Error ${response.status}: ${errData?.error?.message || response.statusText}`);
       }
 
-      const data = (await response.json()) as GeminiResponse;
+      const data: any = await response.json();
       let rawContent = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
       
       console.log(`[AI SERVICE] Raw response received (Attempt ${attempts + 1})`);
@@ -326,7 +326,7 @@ export async function getClueHint(word: Word, apiKey?: string): Promise<string> 
 
     if (!response.ok) return `Think about a word starting with "${word.word.charAt(0)}".`;
 
-    const data = (await response.json()) as GeminiResponse;
+    const data: any = await response.json();
     return data.candidates?.[0]?.content?.parts?.[0]?.text || 'No hint available.';
   } catch (error) {
     return `The word begins with "${word.word.charAt(0)}"...`;
