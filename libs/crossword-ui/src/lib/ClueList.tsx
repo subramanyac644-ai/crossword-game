@@ -34,7 +34,7 @@ export const ClueList: React.FC<ClueListProps> = ({
   const renderClue = (word: Word) => (
     <div
       key={word.id}
-      ref={(el) => (scrollRefs.current[word.id] = el)}
+      ref={(el) => { scrollRefs.current[word.id] = el; }}
       className={`${styles.clueItem} ${
         activeWordId === word.id ? styles.clueItemActive : ''
       }`}

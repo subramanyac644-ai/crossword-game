@@ -1,4 +1,4 @@
-import { GameState, Cell, Word, GameMetadata, Grid, Direction } from '@game-engine/shared-types';
+import { GameState, Word, GameMetadata, Grid, Direction } from '@game-engine/shared-types';
 import { isSolved, getCellsForWord } from '@game-engine/crossword-logic';
 import { generateCrosswordFromText, getClueHint } from '@game-engine/ai-service';
 
@@ -195,7 +195,7 @@ export class CrosswordEngine {
 
   private static finalizeMetadata(grid: Grid, words: Word[]): void {
     let nextNumber = 1;
-    const numberMap: Record<string, number> = {};
+
     const rows = grid.length;
     const cols = grid[0]?.length || 0;
 
