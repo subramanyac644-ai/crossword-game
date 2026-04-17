@@ -16,7 +16,7 @@ describe('useCrossword Scoring Framework', () => {
       ]
     ],
     words: [
-      { id: '1', word: 'AB', clue: 'Testing', direction: 'across', length: 2, start: { row: 0, col: 0 } }
+      { id: '1', word: 'AB', clue: 'Testing', number: 1, direction: 'across', length: 2, start: { row: 0, col: 0 } }
     ],
     selectedWord: null,
     metadata: { title: 'Test', author: 'Jest' }

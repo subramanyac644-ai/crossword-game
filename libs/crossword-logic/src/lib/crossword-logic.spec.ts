@@ -44,7 +44,7 @@ describe('Crossword Logic Core', () => {
 
     it('correctly maps across directions', () => {
       const mockWord: Word = {
-        id: '1', word: 'HEY', clue: 'test', length: 3, direction: 'across', start: { row: 0, col: 0 }
+        id: '1', word: 'HEY', clue: 'test', number: 1, length: 3, direction: 'across', start: { row: 0, col: 0 }
       };
       
       const cells = getCellsForWord(grid, mockWord);
@@ -56,7 +56,7 @@ describe('Crossword Logic Core', () => {
 
     it('correctly maps down directions', () => {
       const mockWord: Word = {
-        id: '2', word: 'HI', clue: 'test', length: 2, direction: 'down', start: { row: 0, col: 0 }
+        id: '2', word: 'HI', clue: 'test', number: 2, length: 2, direction: 'down', start: { row: 0, col: 0 }
       };
       
       const cells = getCellsForWord(grid, mockWord);
