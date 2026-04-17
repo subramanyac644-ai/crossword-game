@@ -8,6 +8,21 @@
     },
     {
       "path": "./apps/web"
+    },
+    {
+      "path": "./libs/crossword-ui"
+    },
+    {
+      "path": "./libs/crossword-logic"
+    },
+    {
+      "path": "./libs/ai-service"
+    },
+    {
+      "path": "./libs/shared-types"
+    },
+    {
+      "path": "./libs/game-engine"
     }
   ]
 }

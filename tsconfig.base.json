@@ -16,6 +16,14 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "es2022",
-    "customConditions": ["@game-engine/source"]
+    "customConditions": ["@game-engine/source"],
+    "baseUrl": ".",
+    "paths": {
+      "@game-engine/shared-types": ["libs/shared-types/src/index.ts"],
+      "@game-engine/crossword-logic": ["libs/crossword-logic/src/index.ts"],
+      "@game-engine/ai-service": ["libs/ai-service/src/index.ts"],
+      "@game-engine/crossword-ui": ["libs/crossword-ui/src/index.ts"],
+      "@game-engine/game-engine": ["libs/game-engine/src/index.ts"]
+    }
   }
 }

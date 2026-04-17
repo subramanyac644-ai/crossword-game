@@ -1,0 +1,292 @@
+:root {
+  --bg-dark: #0f172a;
+  --bg-card: rgba(30, 41, 59, 0.7);
+  --accent-primary: #38bdf8;
+  --accent-secondary: #c084fc;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --cell-bg: #1e293b;
+  --cell-border: #334155;
+  --cell-focus: rgba(56, 189, 248, 0.3);
+  --cell-active-word: rgba(192, 132, 252, 0.15);
+  --cell-correct: #22c55e;
+  --cell-block: #020617;
+  --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+.boardContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 2rem;
+  background-color: var(--bg-dark);
+  min-height: 100vh;
+  color: var(--text-main);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.boardHeader {
+  text-align: center;
+  backdrop-filter: blur(12px);
+  background: var(--bg-card);
+  padding: 1.5rem;
+  border-radius: 1rem;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.statsBar {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  margin-top: 1rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.boardLayout {
+  display: grid;
+  grid-template-columns: 1fr 500px;
+  gap: 2rem;
+  align-items: start;
+}
+
+/* Grid Component */
+.grid {
+  display: grid;
+  background-color: var(--cell-border);
+  gap: 1px;
+  border: 4px solid var(--cell-border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  width: fit-content;
+  margin: 0 auto;
+}
+
+/* Cell Component */
+.cellWrapper {
+  position: relative;
+  width: 45px;
+  height: 45px;
+  background-color: var(--cell-bg);
+}
+
+.cellBlock {
+  background-color: var(--cell-block);
+}
+
+.cellInput {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: inherit;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cellInput:focus {
+  background-color: var(--cell-focus);
+}
+
+.cellActiveWord {
+  background-color: var(--cell-active-word);
+}
+
+.cellCorrect {
+  background-color: rgba(34, 197, 94, 0.15); /* green tint */
+  color: #22c55e;
+}
+
+.cellCorrect:focus {
+  background-color: rgba(34, 197, 94, 0.3);
+}
+
+.cellError {
+  background-color: rgba(239, 68, 68, 0.15); /* red tint */
+  color: #ef4444;
+}
+
+.cellError:focus {
+  background-color: rgba(239, 68, 68, 0.3);
+}
+
+.cellNumber {
+  position: absolute;
+  top: 2px;
+  left: 4px;
+  font-size: 0.65rem;
+  color: var(--accent-primary);
+  font-weight: 600;
+  pointer-events: none;
+}
+
+/* ClueList Component */
+.clueContainer {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  border-radius: 1.5rem;
+  border: 1px solid var(--glass-border);
+  padding: 2rem;
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+}
+
+.clueGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.clueScroll {
+  max-height: calc(100vh - 350px);
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.clueSection h3 {
+  color: var(--accent-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.2rem;
+  font-size: 1rem;
+  font-weight: 800;
+  border-bottom: 2px solid var(--accent-primary);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.clueItem {
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.clueItem:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.clueItemActive {
+  background: var(--accent-secondary);
+  color: white;
+}
+
+.clueNumber {
+  font-weight: 800;
+  margin-right: 0.5rem;
+  color: var(--accent-primary);
+}
+
+.clueItemActive .clueNumber {
+  color: white;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 1200px) {
+  .boardLayout {
+    grid-template-columns: 1fr;
+  }
+  .clueGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .clueGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Win Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.modalContent {
+  background: var(--bg-card);
+  border: 1px solid var(--glass-border);
+  padding: 3rem;
+  border-radius: 2rem;
+  text-align: center;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+.modalContent h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.modalStats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.statItem {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1.5rem;
+  border-radius: 1rem;
+}
+
+.statValue {
+  display: block;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--accent-primary);
+}
+
+.statLabel {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
+
+.modalButton {
+  background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary));
+  color: var(--bg-dark);
+  border: none;
+  padding: 1rem 2.5rem;
+  border-radius: 99px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.modalButton:hover {
+  transform: scale(1.05);
+}

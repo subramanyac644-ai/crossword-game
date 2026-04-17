@@ -1,0 +1,24 @@
+{
+  "name": "@game-engine/game-engine",
+  "version": "1.0.0",
+  "private": false,
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./dist/game-engine.cjs",
+  "module": "./dist/game-engine.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/game-engine.d.ts",
+      "import": "./dist/game-engine.js",
+      "require": "./dist/game-engine.cjs",
+      "default": "./dist/game-engine.js"
+    }
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  }
+}
