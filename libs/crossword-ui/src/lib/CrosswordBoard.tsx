@@ -25,6 +25,7 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
 }) => {
   const apiKey = propApiKey || (import.meta as any).env.VITE_OPENROUTER_API_KEY;
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
+  const [isSaved, setIsSaved] = useState(false);
   
   const { state, handlers } = useCrossword({
     initialData,
@@ -33,7 +34,19 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
     apiKey
   });
 
+  // Validation Check: Ensure data integrity
+  React.useEffect(() => {
+    const missingData = initialData.grid.some(row => 
+      row.some(cell => !cell.isBlocked && !cell.correctLetter)
+    );
+    if (missingData) {
+      console.error("CRITICAL: Puzzle loaded with missing correctLetter data! Submission will fail.");
+    }
+  }, [initialData]);
+
   const handleSave = () => {
+    if (isSaved) return;
+
     savePuzzle({
       id: `puzzle_${Date.now()}`,
       topic: initialData.metadata.title,
@@ -41,6 +54,7 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
       grid: state.grid,
       createdAt: Date.now()
     });
+    setIsSaved(true);
     setSaveStatus('Puzzle Saved!');
     setTimeout(() => setSaveStatus(null), 3000);
   };
@@ -48,7 +62,16 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
   return (
     <div className={styles.boardContainer}>
       <header className={styles.boardHeader}>
-        <h1>{initialData.metadata.title}</h1>
+        <div className={styles.headerTop}>
+          <button 
+            className={styles.backButton} 
+            onClick={onExit}
+            aria-label="Go back to main page"
+          >
+            ← Back
+          </button>
+          <h1>{initialData.metadata.title}</h1>
+        </div>
         <div className={styles.statsBar}>
           <span>
             Words: <span style={{ color: 'var(--accent-primary)' }}>{state.completedWords.length} / {initialData.words.length}</span>
@@ -135,18 +158,20 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
           <button
             className={styles.hintButton}
             onClick={handleSave}
+            disabled={isSaved}
             style={{ 
-              background: 'var(--accent-primary)', 
-              color: 'black', 
+              background: isSaved ? '#334155' : 'var(--accent-primary)', 
+              color: isSaved ? 'var(--text-muted)' : 'black', 
               border: 'none',
               padding: '0.4rem 1.5rem',
               borderRadius: '0.5rem',
-              cursor: 'pointer',
+              cursor: isSaved ? 'not-allowed' : 'pointer',
               marginLeft: '0.5rem',
-              fontWeight: 'bold'
+              fontWeight: 'bold',
+              transition: 'all 0.2s'
             }}
           >
-            Save Puzzle
+            {isSaved ? "Saved ✓" : "Save Puzzle"}
           </button>
         </div>
         {saveStatus && (

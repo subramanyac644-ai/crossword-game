@@ -4,7 +4,7 @@ const CrosswordBoardLazy = React.lazy(() =>
 );
 import { GameState } from '@game-engine/shared-types';
 import { CrosswordEngine } from '@game-engine/game-engine';
-import { getSavedPuzzles, Puzzle } from '@game-engine/puzzle-storage';
+import { getSavedPuzzles, deletePuzzle, Puzzle } from '@game-engine/puzzle-storage';
 import styles from './game-container.module.css';
 import * as pdfjsLib from 'pdfjs-dist';
 
@@ -29,6 +29,7 @@ export const GameContainer: React.FC<GameContainerProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [savedGame, setSavedGame] = useState<string | null>(null);
   const [puzzles, setPuzzles] = useState<Puzzle[]>([]);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   useEffect(() => {
     // Shared types might be slightly different than what savePuzzle stores (the raw grid vs full state)
@@ -62,6 +63,7 @@ export const GameContainer: React.FC<GameContainerProps> = ({
   };
 
   const loadSavedPuzzle = (puzzle: Puzzle) => {
+    console.log("Loading saved puzzle:", puzzle.topic, puzzle.id);
     // Construct a fresh GameState from the saved puzzle definition
     const freshState: GameState = {
       grid: puzzle.grid,
@@ -75,9 +77,19 @@ export const GameContainer: React.FC<GameContainerProps> = ({
         author: 'GPT-4o mini'
       },
       hasWon: false,
-      completedWords: []
+      completedWords: [],
+      isSubmitted: false // Puzzles loaded from the static "Saved" gallery start fresh
     };
     setGameState(freshState);
+  };
+
+  const handleDeletePuzzle = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation(); // Prevent loading the puzzle
+    if (window.confirm("Are you sure you want to delete this saved puzzle?")) {
+      deletePuzzle(id);
+      setSuccessMessage("Puzzle deleted successfully");
+      setTimeout(() => setSuccessMessage(null), 3000);
+    }
   };
 
   const startNewGame = async (promptQuery: string, documentName?: string) => {
@@ -231,6 +243,12 @@ export const GameContainer: React.FC<GameContainerProps> = ({
             </p>
           </div>
 
+          {successMessage && (
+            <div className={styles.successMsg}>
+              {successMessage}
+            </div>
+          )}
+
           {puzzles.length > 0 && (
             <div className={styles.savedPuzzlesSection}>
               <h2 className={styles.sectionTitle}>
@@ -243,6 +261,13 @@ export const GameContainer: React.FC<GameContainerProps> = ({
                     className={styles.puzzleCard}
                     onClick={() => loadSavedPuzzle(p)}
                   >
+                    <button 
+                      className={styles.deleteBtn}
+                      onClick={(e) => handleDeletePuzzle(e, p.id)}
+                      title="Delete Puzzle"
+                    >
+                      🗑️
+                    </button>
                     <div className={styles.puzzleTopic}>{p.topic}</div>
                     <div className={styles.puzzleDate}>
                       {new Date(p.createdAt).toLocaleDateString(undefined, { 

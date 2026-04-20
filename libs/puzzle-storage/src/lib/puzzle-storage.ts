@@ -33,3 +33,10 @@ export function getSavedPuzzles(): Puzzle[] {
     return [];
   }
 }
+export function deletePuzzle(id: string): void {
+  const current = getSavedPuzzles();
+  const filtered = current.filter(p => p.id !== id);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+  // Dispatch a custom event so other components can refresh
+  window.dispatchEvent(new Event('puzzle_saved'));
+}

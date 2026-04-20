@@ -77,3 +77,35 @@ export function getNextFocusableCell(
 
   return null;
 }
+
+/**
+ * Moves focus in an arbitrary direction, skipping blocked cells.
+ * @param grid The 2D array of cells.
+ * @param startRow Current focused row.
+ * @param startCol Current focused column.
+ * @param dRow Change in row.
+ * @param dCol Change in column.
+ */
+export function getNearbyFocusableCell(
+  grid: Cell[][],
+  startRow: number,
+  startCol: number,
+  dRow: number,
+  dCol: number
+): { row: number; col: number } | null {
+  const rowCount = grid.length;
+  const colCount = grid[0]?.length || 0;
+
+  let r = startRow + dRow;
+  let c = startCol + dCol;
+
+  while (r >= 0 && r < rowCount && c >= 0 && c < colCount) {
+    if (!grid[r][c].isBlocked) {
+      return { row: r, col: c };
+    }
+    r += dRow;
+    c += dCol;
+  }
+
+  return null;
+}

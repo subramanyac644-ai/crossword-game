@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { GameState, Cell, Direction } from '@game-engine/shared-types';
-import { getNextFocusableCell, isSolved, getCellsForWord } from '@game-engine/crossword-logic';
+import { getNextFocusableCell, isSolved, getCellsForWord, getNearbyFocusableCell } from '@game-engine/crossword-logic';
 import { getClueHint } from '@game-engine/ai-service';
 
 export interface UseCrosswordConfig {
@@ -59,6 +59,7 @@ export function useCrossword({ initialData, onComplete, onRestart, apiKey }: Use
 
   const [hasWon, setHasWon] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(() => {
+    if (initialData.isSubmitted) return true;
     const saved = localStorage.getItem(STORAGE_KEY);
     return saved && JSON.parse(saved).isSubmitted !== undefined ? JSON.parse(saved).isSubmitted : false;
   });
@@ -130,6 +131,32 @@ export function useCrossword({ initialData, onComplete, onRestart, apiKey }: Use
     if (e.key === 'Backspace' && !grid[row][col].userLetter) {
       const prev = getNextFocusableCell(grid, row, col, 'Backward', direction);
       if (prev) setFocus(prev);
+    }
+
+    if (e.key === 'ArrowRight') {
+      const next = getNearbyFocusableCell(grid, row, col, 0, 1);
+      if (next) {
+        setFocus(next);
+        setDirection('across');
+      }
+    } else if (e.key === 'ArrowLeft') {
+      const next = getNearbyFocusableCell(grid, row, col, 0, -1);
+      if (next) {
+        setFocus(next);
+        setDirection('across');
+      }
+    } else if (e.key === 'ArrowDown') {
+      const next = getNearbyFocusableCell(grid, row, col, 1, 0);
+      if (next) {
+        setFocus(next);
+        setDirection('down');
+      }
+    } else if (e.key === 'ArrowUp') {
+      const next = getNearbyFocusableCell(grid, row, col, -1, 0);
+      if (next) {
+        setFocus(next);
+        setDirection('down');
+      }
     }
 
     if (e.key === ' ') {
@@ -234,32 +261,26 @@ export function useCrossword({ initialData, onComplete, onRestart, apiKey }: Use
   const handleCheckPuzzle = () => {
     if (hasWon || isSubmitted) return;
     
-    const newGrid = grid.map(r => r.map(c => ({ ...c })));
-    let allCorrect = true;
-
-    newGrid.forEach(row => {
-      row.forEach(c => {
-        if (!c.isBlocked) {
-          if (c.userLetter) {
-            if (c.userLetter.toUpperCase() === c.correctLetter.toUpperCase()) {
-              c.status = 'correct';
-            } else {
-              c.status = 'error';
-              allCorrect = false;
-            }
-          } else {
-            c.userLetter = c.correctLetter; // reveal correct letter for empty cell
-            c.status = 'error'; // marked error as user didn't fill it
-            allCorrect = false;
-          }
+    console.log("Submitting puzzle. Revealing all correct answers.");
+    
+    const newGrid = grid.map(row => 
+      row.map(cell => {
+        if (!cell.isBlocked) {
+          const isCorrect = cell.userLetter?.toUpperCase() === cell.correctLetter.toUpperCase();
+          return {
+            ...cell,
+            userLetter: cell.correctLetter,
+            status: isCorrect ? 'correct' : 'error' as any
+          };
         }
-      });
-    });
+        return cell;
+      })
+    );
 
     setGrid(newGrid);
     setIsSubmitted(true);
     setHasWon(true);
-    if (allCorrect && onComplete) onComplete();
+    if (onComplete) onComplete();
   };
 
   const handleRestart = () => {

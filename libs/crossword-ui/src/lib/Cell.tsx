@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Cell } from '@game-engine/shared-types';
 import styles from './crossword-ui.module.css';
 
@@ -19,6 +19,14 @@ const CellRenderer: React.FC<CellProps> = ({
   onKeyDown,
   isSubmitted,
 }) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (cell.isFocused && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [cell.isFocused]);
+
   if (cell.isBlocked) {
     return <div className={`${styles.cellWrapper} ${styles.cellBlock}`} />;
   }
@@ -35,6 +43,7 @@ const CellRenderer: React.FC<CellProps> = ({
     >
       {cell.number && <span className={styles.cellNumber}>{cell.number}</span>}
       <input
+        ref={inputRef}
         className={styles.cellInput}
         maxLength={1}
         value={cell.userLetter}
@@ -43,7 +52,6 @@ const CellRenderer: React.FC<CellProps> = ({
         onFocus={onFocus}
         autoComplete="off"
         spellCheck="false"
-        autoFocus={cell.isFocused}
         readOnly={isSubmitted}
       />
     </div>
