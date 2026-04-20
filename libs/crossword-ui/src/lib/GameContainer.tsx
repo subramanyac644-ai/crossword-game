@@ -68,8 +68,8 @@ export const GameContainer: React.FC<GameContainerProps> = ({
     const freshState: GameState = {
       grid: puzzle.grid,
       words: puzzle.words,
-      score: 0,
-      hintsUsed: 0,
+      score: puzzle.score || 0,
+      hintsUsed: puzzle.hintsUsed || 0,
       selectedWord: null,
       direction: 'across',
       metadata: {
@@ -77,7 +77,8 @@ export const GameContainer: React.FC<GameContainerProps> = ({
         author: 'GPT-4o mini'
       },
       hasWon: false,
-      completedWords: [],
+      completedWords: puzzle.completedWords || [],
+      elapsedSeconds: puzzle.elapsedSeconds || 0,
       isSubmitted: false, // Puzzles loaded from the static "Saved" gallery start fresh
       isViewMode: true // ALWAYS open saved gallery items in read-only view mode
     };

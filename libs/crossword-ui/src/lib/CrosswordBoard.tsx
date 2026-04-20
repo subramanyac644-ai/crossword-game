@@ -52,7 +52,11 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
       topic: initialData.metadata.title,
       words: initialData.words,
       grid: state.grid,
-      createdAt: Date.now()
+      createdAt: Date.now(),
+      score: state.score,
+      hintsUsed: state.hintsUsed,
+      elapsedSeconds: state.elapsedSeconds || 0,
+      completedWords: state.completedWords
     });
     setIsSaved(true);
     setSaveStatus('Puzzle Saved!');
@@ -87,15 +91,37 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
           )}
         </div>
         <div className={styles.statsBar}>
-          <span>
-            Words: <span style={{ color: 'var(--accent-primary)' }}>{state.completedWords.length} / {initialData.words.length}</span>
-          </span>
-          <span>
-            Score: <span style={{ color: 'var(--accent-primary)' }}>{state.score}</span>
-          </span>
-          <span>
-            Hints: <span style={{ color: 'var(--accent-secondary)' }}>{state.hintsUsed}</span>
-          </span>
+          {state.isViewMode ? (
+            <>
+              <span>
+                Time: <span style={{ color: 'var(--accent-primary)' }}>{new Date((state.elapsedSeconds || 0) * 1000).toISOString().substr(14, 5)}</span>
+              </span>
+              <span>
+                Score: <span style={{ color: 'var(--accent-primary)' }}>{state.score}</span>
+              </span>
+              <span>
+                Hints: <span style={{ color: 'var(--accent-secondary)' }}>{state.hintsUsed}</span>
+              </span>
+              <span>
+                Correct: <span style={{ color: '#22c55e' }}>{state.completedWords.length}</span>
+              </span>
+              <span>
+                Incorrect: <span style={{ color: '#ef4444' }}>{initialData.words.length - state.completedWords.length}</span>
+              </span>
+            </>
+          ) : (
+            <>
+              <span>
+                Words: <span style={{ color: 'var(--accent-primary)' }}>{state.completedWords.length} / {initialData.words.length}</span>
+              </span>
+              <span>
+                Score: <span style={{ color: 'var(--accent-primary)' }}>{state.score}</span>
+              </span>
+              <span>
+                Hints: <span style={{ color: 'var(--accent-secondary)' }}>{state.hintsUsed}</span>
+              </span>
+            </>
+          )}
           {!state.isViewMode && (
             <>
               <button

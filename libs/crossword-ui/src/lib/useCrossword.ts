@@ -81,6 +81,23 @@ export function useCrossword({ initialData, onComplete, onRestart, apiKey }: Use
     localStorage.setItem(STORAGE_KEY, JSON.stringify(fullState));
   }, [grid, score, hintsUsed, completedWords, elapsedSeconds, hasWon, isSubmitted, isViewMode, STORAGE_KEY, initialData]);
 
+  // Compute viewing results for isViewMode
+  useEffect(() => {
+    if (isViewMode) {
+      console.log("Computing viewing results for Saved Puzzle...");
+      setGrid(prev => prev.map(row => 
+        row.map(cell => {
+          if (cell.isBlocked) return cell;
+          const isCorrect = (cell.userLetter || '').toUpperCase() === cell.correctLetter.toUpperCase();
+          return {
+            ...cell,
+            status: isCorrect ? 'correct' : 'error' // Correct -> green, Wrong/Empty -> red
+          };
+        })
+      ));
+    }
+  }, [isViewMode]);
+
   const activeWordId = useMemo(() => {
     return initialData.words.find((w) => {
       const { row, col } = w.start;

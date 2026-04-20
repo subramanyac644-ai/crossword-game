@@ -6,6 +6,10 @@ export interface Puzzle {
   words: Word[];
   grid: Grid;
   createdAt: number;
+  score?: number;
+  hintsUsed?: number;
+  elapsedSeconds?: number;
+  completedWords?: string[];
 }
 
 const STORAGE_KEY = 'crossword_puzzles';
