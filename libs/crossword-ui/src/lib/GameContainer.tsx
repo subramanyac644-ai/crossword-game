@@ -72,7 +72,7 @@ export const GameContainer: React.FC<GameContainerProps> = ({
       direction: 'across',
       metadata: {
         title: puzzle.topic,
-        author: 'Gemini AI'
+        author: 'GPT-4o mini'
       },
       hasWon: false,
       completedWords: []
@@ -97,7 +97,7 @@ export const GameContainer: React.FC<GameContainerProps> = ({
 
       const engine = await CrosswordEngine.createFromTopic(promptQuery, apiKey, {
         title: documentName ? `${documentName} Puzzle` : `${promptQuery} Crossword`,
-        author: 'Gemini AI',
+        author: 'GPT-4o mini',
       }, difficulty);
       
       setGameState(engine.getState());
@@ -163,7 +163,7 @@ export const GameContainer: React.FC<GameContainerProps> = ({
       {loading && (
         <div className={`${styles.loadingOverlay} ${styles.shimmer}`}>
           <div className={styles.pulse} />
-          <h2 style={{ color: '#38bdf8', fontSize: '1.5rem' }}>Gemini is drafting your puzzle...</h2>
+          <h2 style={{ color: '#38bdf8', fontSize: '1.5rem' }}>AI is drafting your puzzle...</h2>
           <p style={{ color: '#94a3b8' }}>Generating clues and weaving words together.</p>
         </div>
       )}
@@ -268,7 +268,7 @@ export const GameContainer: React.FC<GameContainerProps> = ({
               <h3>Generation Troubleshooting</h3>
               <p>{error}</p>
               <div className={styles.troubleshootingSteps}>
-                <div><strong>• API Key:</strong> Ensure VITE_GEMINI_API_KEY in .env is correct.</div>
+                <div><strong>• API Key:</strong> Ensure VITE_OPENROUTER_API_KEY in .env is correct.</div>
                 <div><strong>• Region:</strong> Check if your country is on the <a href="https://ai.google.dev/available_regions" target="_blank" rel="noreferrer">Gemini Availability List</a>.</div>
                 <div><strong>• Quota:</strong> You may have exceeded your daily limit.</div>
               </div>

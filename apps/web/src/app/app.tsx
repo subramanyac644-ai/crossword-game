@@ -1,7 +1,7 @@
 import { GameContainer } from '@game-engine/crossword-ui';
 
 export function App() {
-  const apiKey = (import.meta as any).env.VITE_GEMINI_API_KEY;
+  const apiKey = (import.meta as any).env.VITE_OPENROUTER_API_KEY;
 
   const handleGameComplete = (metrics: any) => {
     console.log("Game successfully completed in container. Metrics:", metrics);

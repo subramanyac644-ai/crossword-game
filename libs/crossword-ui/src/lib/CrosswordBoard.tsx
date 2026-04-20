@@ -23,7 +23,7 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
   onExit,
   apiKey: propApiKey,
 }) => {
-  const apiKey = propApiKey || (import.meta as any).env.VITE_GEMINI_API_KEY;
+  const apiKey = propApiKey || (import.meta as any).env.VITE_OPENROUTER_API_KEY;
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
   
   const { state, handlers } = useCrossword({
@@ -161,7 +161,7 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
         )}
         {state.aiHint && (
           <div style={{ marginTop: '1rem', fontStyle: 'italic', color: 'var(--accent-secondary)' }}>
-            <strong>Gemini Idea:</strong> {state.aiHint}
+            <strong>AI Idea:</strong> {state.aiHint}
           </div>
         )}
       </header>

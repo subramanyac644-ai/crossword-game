@@ -1,85 +1,5 @@
 import { Word, AIWordResponse } from '@game-engine/shared-types';
 
-// Base URL for Gemini API (currently dynamic)
-
-let cachedModelName: string | null = null;
-const blacklistedModels = new Set<string>();
-
-/**
- * Discovers the best available model for the given API key.
- * This avoids 404 errors by asking the API what is actually available.
- */
-async function discoverBestModel(apiKey: string): Promise<string> {
-  // If we already have a discovered model that isn't blacklisted, use it
-  if (cachedModelName && !blacklistedModels.has(cachedModelName)) {
-    return cachedModelName;
-  }
-
-  console.log('[AI SERVICE] Discovering available models via v1beta...');
-  const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey.trim()}`;
-  
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`Model Discovery failed (${response.status}). Key status might be restricted.`);
-    }
-
-    const data: any = await response.json();
-    const models: any[] = data.models || [];
-    
-    // Preference: prioritize fast, high-quota models that aren't blacklisted
-    const preferred = [
-      'models/gemini-1.5-flash-8b', // Ultra fast
-      'models/gemini-1.5-flash', 
-      'models/gemini-2.0-flash-exp',
-      'models/gemini-1.5-pro',
-      'models/gemini-pro',
-      'models/gemini-2.0-flash'
-    ];
-    
-    let bestModel = '';
-    for (const p of preferred) {
-      const match = models.find(m => 
-        m.name === p && 
-        m.supportedMethodNames?.includes('generateContent') &&
-        !blacklistedModels.has(m.name)
-      );
-      if (match) {
-        bestModel = match.name;
-        break;
-      }
-    }
-
-    // Secondary search for any non-blacklisted supporting name
-    if (!bestModel && models.length > 0) {
-      const anySupporting = models.find(m => 
-        m.supportedMethodNames?.includes('generateContent') && 
-        !blacklistedModels.has(m.name)
-      );
-      if (anySupporting) bestModel = anySupporting.name;
-    }
-
-    if (!bestModel) {
-      // Final hard fallback ONLY if not blacklisted
-      const fallback = 'models/gemini-1.5-flash';
-      if (!blacklistedModels.has(fallback)) return fallback;
-      
-      // If even the fallback is blacklisted, try something else or throw
-      const emergency = models.find(m => !blacklistedModels.has(m.name))?.name;
-      if (emergency) return emergency;
-      
-      throw new Error('All discovered Gemini models are currently restricted (Quota/Not Found).');
-    }
-
-    console.log(`[AI SERVICE] Selected model for session: ${bestModel}`);
-    cachedModelName = bestModel;
-    return bestModel;
-  } catch (error: any) {
-    console.warn('[AI SERVICE] Discovery failure, using default 1.5-flash.');
-    return 'models/gemini-1.5-flash';
-  }
-}
-
 /**
  * Validates and filters words from the AI response.
  * Filters out: spaces, symbols, duplicates, and invalid lengths.
@@ -88,7 +8,7 @@ function validateWords(words: AIWordResponse[]): AIWordResponse[] {
   const seen = new Set<string>();
   return words.filter(item => {
     const word = item.word.toUpperCase().trim();
-    // Rules: No spaces, 3-15 chars (technical words can be long), letters only, no duplicates
+    // Rules: No spaces, 3-15 chars, letters only, no duplicates
     const isValid = /^[A-Z]{3,15}$/.test(word) && !seen.has(word);
     if (isValid) seen.add(word);
     return isValid;
@@ -96,11 +16,8 @@ function validateWords(words: AIWordResponse[]): AIWordResponse[] {
 }
 
 /**
- * Generates a set of crossword words and clues from a given topic using Gemini AI.
- * @param topic The topic to generate the puzzle about.
- * @param apiKey The Gemini API key.
+ * Generates a set of crossword words and clues from a given topic using OpenRouter (GPT-4o mini).
  */
-// Simple in-memory cache to prevent abusive quota burning for identical generations
 const generateCache = new Map<string, AIWordResponse[]>();
 
 export async function generateCrosswordFromText(
@@ -109,7 +26,7 @@ export async function generateCrosswordFromText(
   difficulty: 'easy' | 'medium' | 'hard' = 'medium'
 ): Promise<AIWordResponse[]> {
   if (!apiKey) {
-    throw new Error('Gemini API Key is missing. Please provide a valid API key.');
+    throw new Error('OpenRouter API Key is missing. Please provide a valid API key.');
   }
 
   // Check cache hit
@@ -130,10 +47,6 @@ export async function generateCrosswordFromText(
     : 'Use standard, moderately challenging vocabulary.';
 
   while (attempts < maxAttempts) {
-    // Auto-discover the model name inside the loop to allow failover between attempts
-    const modelName = await discoverBestModel(apiKey);
-    const baseUrl = `https://generativelanguage.googleapis.com/v1beta/${modelName}:generateContent`;
-
     try {
       const isDocument = topic.length > 500;
       
@@ -152,12 +65,10 @@ export async function generateCrosswordFromText(
         - Creative and not just a dictionary definition
         - Refers to how the word is used in the text
 
-        Return strict JSON array of objects:
+        Return ONLY a strict JSON array of objects:
         [
           { "word": "WORD", "clue": "Relevant clue here..." }
         ]
-
-        ONLY return the JSON array.
         `
         : `
         Given the topic: "${topic}"
@@ -172,85 +83,49 @@ export async function generateCrosswordFromText(
         - Not a dictionary definition
         - Refers to how the word is used in the topic/context
 
-        Return strict JSON array of objects:
+        Return ONLY a strict JSON array of objects:
         [
           { "word": "WORD", "clue": "Relevant clue here..." }
         ]
-
-        ONLY return the JSON array.
         `;
 
-      const response = await fetch(`${baseUrl}?key=${apiKey.trim()}`, {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
+          'Authorization': `Bearer ${apiKey.trim()}`,
           'Content-Type': 'application/json',
+          'HTTP-Referer': 'http://localhost:4200',
+          'X-Title': 'Crossword Game'
         },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: fullPrompt }] }],
-          generationConfig: {
-            temperature: 0.7 + (attempts * 0.1),
-            responseMimeType: "application/json",
-            responseSchema: {
-              type: "ARRAY",
-              items: {
-                type: "OBJECT",
-                properties: {
-                  word: {
-                    type: "STRING",
-                    description: "A single word related to the topic, uppercase, 3-15 letters, no spaces."
-                  },
-                  clue: {
-                    type: "STRING",
-                    description: "A witty or contextual clue for the word."
-                  }
-                },
-                required: ["word", "clue"]
-              }
+          model: 'openai/gpt-4o-mini',
+          messages: [
+            {
+              role: 'user',
+              content: fullPrompt
             }
-          },
+          ],
+          temperature: 0.7 + (attempts * 0.1),
         }),
       });
 
       if (!response.ok) {
-        if (response.status === 429) {
-           const err = new Error('Rate Limit (429) - You have exceeded your Gemini free tier usage quota. Please wait a minute before generating more puzzles.');
-           err.name = 'RateLimitError';
-           throw err;
-        }
-
-        // Failover on Not Found (404/403), OR High Demand (503)
-        if (response.status === 404 || response.status === 403 || response.status === 503) {
-          const reason = response.status === 503 ? 'High Demand (503)' : 
-                         response.status === 403 ? 'Permission Denied / Region Restricted (403)' : 'Not Found (404)';
-          console.warn(`[AI SERVICE] Model ${modelName} failed (${reason}). Blacklisting and failing over...`);
-          
-          lastErrorReason = reason;
-          blacklistedModels.add(modelName);
-          cachedModelName = null;
-          
-          // Adaptive delay: 1.5s for 503 to let server breathe, 0.5s for others
-          const delay = response.status === 503 ? 1500 : 500;
-          await new Promise(r => setTimeout(r, delay));
-          
-          attempts++;
-          continue; 
-        }
         const errData: any = await response.json().catch(() => ({}));
         throw new Error(`API Error ${response.status}: ${errData?.error?.message || response.statusText}`);
       }
 
       const data: any = await response.json();
-      let rawContent = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      let rawContent = data.choices?.[0]?.message?.content || '';
       
       console.log(`[AI SERVICE] Raw response received (Attempt ${attempts + 1})`);
 
+      // Extract JSON if model wrapped it in code blocks
       const jsonMatch = rawContent.match(/\[[\s\S]*\]/);
       if (jsonMatch) rawContent = jsonMatch[0];
 
-      const parsed: { word: string; clue: string }[] = JSON.parse(rawContent);
+      const parsed: { word: string; clue: string }[] = JSON.parse(rawContent.trim());
       
       const result: AIWordResponse[] = parsed.map(p => {
-        // Clean word: remove spaces, hyphens, and symbols for the grid
         const cleaned = p.word.toUpperCase().replace(/[^A-Z]/g, '');
         return {
           word: cleaned,
@@ -265,47 +140,35 @@ export async function generateCrosswordFromText(
       const validated = validateWords(result);
       console.log(`[AI SERVICE] Validated words: ${validated.length}`);
       
-      // Technical topics often yield fewer words, so we accept 5+ if necessary
       if (validated.length >= 5) {
         console.log(`[AI SERVICE] Successfully generated ${validated.length} contextual clues.`);
         generateCache.set(cacheKey, validated);
         return validated;
       }
       
-      console.warn(`[AI SERVICE] Attempt ${attempts + 1} yielding only ${validated.length} words. Retrying...`);
+      throw new Error(`Only ${validated.length} valid words generated.`);
     } catch (error: any) {
       console.error(`[AI SERVICE] Attempt ${attempts + 1} failed:`, error);
       lastErrorReason = error.message;
-      if (error.name === 'RateLimitError') {
-        throw error;
-      }
       if (attempts === maxAttempts - 1) {
-        throw new Error(`AI Generation for "${topic}" failed after ${maxAttempts} attempts. Detail: ${lastErrorReason}`);
+        throw new Error(`OpenRouter AI Generation failed after ${maxAttempts} attempts. Detail: ${lastErrorReason}`);
       }
+      // Wait before retry
+      await new Promise(r => setTimeout(r, 1000));
     }
     attempts++;
   }
 
-  throw new Error(
-    `Could not generate a valid puzzle for topic: "${topic}". ` + 
-    (lastErrorReason ? `Latest API Error: ${lastErrorReason}. ` : '') + 
-    `Please try a more specific or common topic.`
-  );
+  throw new Error(`Could not generate a valid puzzle for topic: "${topic}".`);
 }
 
 /**
- * Requests a contextual hint for a specific word without revealing the answer.
- * @param word The word for which a hint is required.
- * @param apiKey The Gemini API key.
+ * Requests a contextual hint for a specific word using OpenRouter.
  */
 export async function getClueHint(word: Word, apiKey?: string): Promise<string> {
   if (!apiKey) {
     return `Hint: The first letter is "${word.word.charAt(0)}".`;
   }
-
-  // Auto-discover the model name to avoid 404s
-  const modelName = await discoverBestModel(apiKey);
-  const baseUrl = `https://generativelanguage.googleapis.com/v1beta/${modelName}:generateContent`;
 
   const prompt = `
     Context: You are a helpful crossword assistant.
@@ -314,20 +177,30 @@ export async function getClueHint(word: Word, apiKey?: string): Promise<string> 
   `;
 
   try {
-    const response = await fetch(`${baseUrl}?key=${apiKey.trim()}`, {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
+        'Authorization': `Bearer ${apiKey.trim()}`,
         'Content-Type': 'application/json',
+        'HTTP-Referer': 'http://localhost:4200',
+        'X-Title': 'Crossword Game'
       },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
+        model: 'openai/gpt-4o-mini',
+        messages: [
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        temperature: 0.8
       }),
     });
 
     if (!response.ok) return `Think about a word starting with "${word.word.charAt(0)}".`;
 
     const data: any = await response.json();
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || 'No hint available.';
+    return data.choices?.[0]?.message?.content || 'No hint available.';
   } catch (error) {
     return `The word begins with "${word.word.charAt(0)}"...`;
   }
