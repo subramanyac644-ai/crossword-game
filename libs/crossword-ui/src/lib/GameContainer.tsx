@@ -78,7 +78,8 @@ export const GameContainer: React.FC<GameContainerProps> = ({
       },
       hasWon: false,
       completedWords: [],
-      isSubmitted: false // Puzzles loaded from the static "Saved" gallery start fresh
+      isSubmitted: false, // Puzzles loaded from the static "Saved" gallery start fresh
+      isViewMode: true // ALWAYS open saved gallery items in read-only view mode
     };
     setGameState(freshState);
   };
@@ -112,7 +113,9 @@ export const GameContainer: React.FC<GameContainerProps> = ({
         author: 'GPT-4o mini',
       }, difficulty);
       
-      setGameState(engine.getState());
+      const newState = engine.getState();
+      newState.isViewMode = false; // Newly generated puzzles are always in play mode
+      setGameState(newState);
     } catch (err: any) {
       setError(err.message || 'Failed to start game.');
     } finally {

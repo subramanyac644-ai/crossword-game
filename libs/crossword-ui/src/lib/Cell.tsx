@@ -8,7 +8,9 @@ interface CellProps {
   onFocus: () => void;
   onChange: (value: string) => void;
   onKeyDown: (e: React.KeyboardEvent) => void;
+  onClick?: () => void;
   isSubmitted?: boolean;
+  isViewMode?: boolean;
 }
 
 const CellRenderer: React.FC<CellProps> = ({
@@ -17,15 +19,17 @@ const CellRenderer: React.FC<CellProps> = ({
   onFocus,
   onChange,
   onKeyDown,
+  onClick,
   isSubmitted,
+  isViewMode,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (cell.isFocused && inputRef.current) {
+    if (cell.isFocused && inputRef.current && !isViewMode) {
       inputRef.current.focus();
     }
-  }, [cell.isFocused]);
+  }, [cell.isFocused, isViewMode]);
 
   if (cell.isBlocked) {
     return <div className={`${styles.cellWrapper} ${styles.cellBlock}`} />;
@@ -39,6 +43,8 @@ const CellRenderer: React.FC<CellProps> = ({
         cell.status === 'correct' ? styles.cellCorrect : ''
       } ${
         cell.status === 'error' ? styles.cellError : ''
+      } ${
+        isViewMode ? styles.cellViewMode : ''
       }`}
     >
       {cell.number && <span className={styles.cellNumber}>{cell.number}</span>}
@@ -46,13 +52,14 @@ const CellRenderer: React.FC<CellProps> = ({
         ref={inputRef}
         className={styles.cellInput}
         maxLength={1}
-        value={cell.userLetter}
+        value={isViewMode ? cell.correctLetter : cell.userLetter}
         onChange={(e) => onChange(e.currentTarget.value)}
         onKeyDown={onKeyDown}
         onFocus={onFocus}
+        onClick={onClick}
         autoComplete="off"
         spellCheck="false"
-        readOnly={isSubmitted}
+        readOnly={isSubmitted || isViewMode}
       />
     </div>
   );
@@ -66,6 +73,7 @@ export const CellComponent = React.memo(CellRenderer, (prevProps, nextProps) => 
     prevProps.cell.userLetter === nextProps.cell.userLetter &&
     prevProps.cell.isFocused === nextProps.cell.isFocused &&
     prevProps.cell.status === nextProps.cell.status &&
-    prevProps.isSubmitted === nextProps.isSubmitted
+    prevProps.isSubmitted === nextProps.isSubmitted &&
+    prevProps.isViewMode === nextProps.isViewMode
   );
 });

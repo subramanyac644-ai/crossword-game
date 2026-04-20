@@ -64,20 +64,22 @@ export function useCrossword({ initialData, onComplete, onRestart, apiKey }: Use
     return saved && JSON.parse(saved).isSubmitted !== undefined ? JSON.parse(saved).isSubmitted : false;
   });
 
+  const [isViewMode] = useState<boolean>(!!initialData.isViewMode);
+
   useEffect(() => {
     let interval: any;
-    if (!hasWon) {
+    if (!hasWon && !isViewMode) {
       interval = setInterval(() => {
         setElapsedSeconds(s => s + 1);
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [hasWon]);
+  }, [hasWon, isViewMode]);
 
   useEffect(() => {
-    const fullState = { ...initialData, grid, score, hintsUsed, completedWords, elapsedSeconds, hasWon, isSubmitted };
+    const fullState = { ...initialData, grid, score, hintsUsed, completedWords, elapsedSeconds, hasWon, isSubmitted, isViewMode };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(fullState));
-  }, [grid, score, hintsUsed, completedWords, elapsedSeconds, hasWon, isSubmitted, STORAGE_KEY, initialData]);
+  }, [grid, score, hintsUsed, completedWords, elapsedSeconds, hasWon, isSubmitted, isViewMode, STORAGE_KEY, initialData]);
 
   const activeWordId = useMemo(() => {
     return initialData.words.find((w) => {
@@ -94,7 +96,7 @@ export function useCrossword({ initialData, onComplete, onRestart, apiKey }: Use
   }, [direction, focus, initialData.words]);
 
   const handleCellChange = (row: number, col: number, value: string) => {
-    if (hasWon || isSubmitted) return;
+    if (hasWon || isSubmitted || isViewMode) return;
 
     const char = value.slice(-1).toUpperCase();
     const newGrid = grid.map((r, ri) =>
@@ -126,7 +128,7 @@ export function useCrossword({ initialData, onComplete, onRestart, apiKey }: Use
   };
 
   const handleCellKeyDown = (row: number, col: number, e: React.KeyboardEvent) => {
-    if (hasWon || isSubmitted) return;
+    if (hasWon || isSubmitted || isViewMode) return;
 
     if (e.key === 'Backspace' && !grid[row][col].userLetter) {
       const prev = getNextFocusableCell(grid, row, col, 'Backward', direction);
@@ -134,24 +136,28 @@ export function useCrossword({ initialData, onComplete, onRestart, apiKey }: Use
     }
 
     if (e.key === 'ArrowRight') {
+      e.preventDefault();
       const next = getNearbyFocusableCell(grid, row, col, 0, 1);
       if (next) {
         setFocus(next);
         setDirection('across');
       }
     } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
       const next = getNearbyFocusableCell(grid, row, col, 0, -1);
       if (next) {
         setFocus(next);
         setDirection('across');
       }
     } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
       const next = getNearbyFocusableCell(grid, row, col, 1, 0);
       if (next) {
         setFocus(next);
         setDirection('down');
       }
     } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
       const next = getNearbyFocusableCell(grid, row, col, -1, 0);
       if (next) {
         setFocus(next);
@@ -166,6 +172,10 @@ export function useCrossword({ initialData, onComplete, onRestart, apiKey }: Use
   };
 
   const handleCellFocus = (row: number, col: number) => {
+    setFocus({ row, col });
+  };
+
+  const handleCellClick = (row: number, col: number) => {
     if (row === focus.row && col === focus.col) {
       setDirection((d) => (d === 'across' ? 'down' : 'across'));
     }
@@ -201,7 +211,7 @@ export function useCrossword({ initialData, onComplete, onRestart, apiKey }: Use
   };
 
   const handleRevealLetter = () => {
-    if (hasWon || isSubmitted) return;
+    if (hasWon || isSubmitted || isViewMode) return;
     const activeWord = initialData.words.find((w) => w.id === activeWordId);
     if (!activeWord) {
       setAiHint("Please select a word to reveal a letter.");
@@ -239,7 +249,7 @@ export function useCrossword({ initialData, onComplete, onRestart, apiKey }: Use
   };
 
   const handleCheckWord = () => {
-    if (hasWon || isSubmitted) return;
+    if (hasWon || isSubmitted || isViewMode) return;
     const activeWord = initialData.words.find((w) => w.id === activeWordId);
     if (!activeWord) {
       setAiHint("Please select a word to verify.");
@@ -259,7 +269,7 @@ export function useCrossword({ initialData, onComplete, onRestart, apiKey }: Use
   };
 
   const handleCheckPuzzle = () => {
-    if (hasWon || isSubmitted) return;
+    if (hasWon || isSubmitted || isViewMode) return;
     
     console.log("Submitting puzzle. Revealing all correct answers.");
     
@@ -302,11 +312,13 @@ export function useCrossword({ initialData, onComplete, onRestart, apiKey }: Use
       isHintLoading,
       hasWon,
       isSubmitted,
+      isViewMode,
     },
     handlers: {
       handleCellChange,
       handleCellKeyDown,
       handleCellFocus,
+      handleCellClick,
       handleWordClick,
       useAiHint,
       handleRevealLetter,

@@ -71,6 +71,20 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
             ← Back
           </button>
           <h1>{initialData.metadata.title}</h1>
+          {state.isViewMode && (
+            <div style={{ 
+              background: 'rgba(56, 189, 248, 0.1)', 
+              color: '#38bdf8', 
+              padding: '0.4rem 1rem', 
+              borderRadius: '0.5rem',
+              fontSize: '0.85rem',
+              fontWeight: 'bold',
+              border: '1px solid rgba(56, 189, 248, 0.2)',
+              marginLeft: '1rem'
+            }}>
+              Viewing Saved Puzzle (Answers Mode)
+            </div>
+          )}
         </div>
         <div className={styles.statsBar}>
           <span>
@@ -82,97 +96,101 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
           <span>
             Hints: <span style={{ color: 'var(--accent-secondary)' }}>{state.hintsUsed}</span>
           </span>
-          <button
-            className={styles.hintButton}
-            onClick={handlers.useAiHint}
-            disabled={state.hasWon || state.isHintLoading}
-            style={{ 
-              background: 'var(--bg-dark)', 
-              color: 'var(--accent-primary)', 
-              border: '1px solid var(--accent-primary)',
-              padding: '0.4rem 1rem',
-              borderRadius: '0.5rem',
-              cursor: (state.hasWon || state.isHintLoading) ? 'not-allowed' : 'pointer',
-              opacity: (state.hasWon || state.isHintLoading) ? 0.5 : 1,
-              transition: 'all 0.2s',
-              minWidth: '90px',
-              marginRight: '0.5rem'
-            }}
-          >
-            {state.isHintLoading ? 'Thinking...' : 'AI Hint'}
-          </button>
-          <button
-            className={styles.hintButton}
-            onClick={handlers.handleRevealLetter}
-            disabled={state.hasWon}
-            style={{ 
-              background: 'var(--bg-dark)', 
-              color: '#f43f5e', 
-              border: '1px solid #f43f5e',
-              padding: '0.4rem 1rem',
-              borderRadius: '0.5rem',
-              cursor: state.hasWon ? 'not-allowed' : 'pointer',
-              opacity: state.hasWon ? 0.5 : 1,
-              transition: 'all 0.2s',
-            }}
-          >
-            Reveal Letter (-50)
-          </button>
-          <button
-            className={styles.hintButton}
-            onClick={handlers.handleCheckWord}
-            disabled={state.hasWon}
-            style={{ 
-              background: 'var(--bg-dark)', 
-              color: 'var(--text-main)', 
-              border: '1px solid var(--glass-border)',
-              padding: '0.4rem 1rem',
-              borderRadius: '0.5rem',
-              cursor: state.hasWon ? 'not-allowed' : 'pointer',
-              opacity: state.hasWon ? 0.5 : 1,
-              transition: 'all 0.2s',
-              marginLeft: '0.5rem'
-            }}
-          >
-            Check Word
-          </button>
-          <button
-            className={styles.hintButton}
-            onClick={handlers.handleCheckPuzzle}
-            disabled={state.isSubmitted}
-            style={{ 
-              background: '#047857', 
-              color: 'white', 
-              border: 'none',
-              padding: '0.4rem 1.5rem',
-              borderRadius: '0.5rem',
-              cursor: state.isSubmitted ? 'not-allowed' : 'pointer',
-              opacity: state.isSubmitted ? 0.5 : 1,
-              transition: 'all 0.2s',
-              marginLeft: '0.5rem',
-              fontWeight: 'bold'
-            }}
-          >
-            {state.isSubmitted ? 'Submitted' : 'Submit Puzzle'}
-          </button>
-          <button
-            className={styles.hintButton}
-            onClick={handleSave}
-            disabled={isSaved}
-            style={{ 
-              background: isSaved ? '#334155' : 'var(--accent-primary)', 
-              color: isSaved ? 'var(--text-muted)' : 'black', 
-              border: 'none',
-              padding: '0.4rem 1.5rem',
-              borderRadius: '0.5rem',
-              cursor: isSaved ? 'not-allowed' : 'pointer',
-              marginLeft: '0.5rem',
-              fontWeight: 'bold',
-              transition: 'all 0.2s'
-            }}
-          >
-            {isSaved ? "Saved ✓" : "Save Puzzle"}
-          </button>
+          {!state.isViewMode && (
+            <>
+              <button
+                className={styles.hintButton}
+                onClick={handlers.useAiHint}
+                disabled={state.hasWon || state.isHintLoading}
+                style={{ 
+                  background: 'var(--bg-dark)', 
+                  color: 'var(--accent-primary)', 
+                  border: '1px solid var(--accent-primary)',
+                  padding: '0.4rem 1rem',
+                  borderRadius: '0.5rem',
+                  cursor: (state.hasWon || state.isHintLoading) ? 'not-allowed' : 'pointer',
+                  opacity: (state.hasWon || state.isHintLoading) ? 0.5 : 1,
+                  transition: 'all 0.2s',
+                  minWidth: '90px',
+                  marginRight: '0.5rem'
+                }}
+              >
+                {state.isHintLoading ? 'Thinking...' : 'AI Hint'}
+              </button>
+              <button
+                className={styles.hintButton}
+                onClick={handlers.handleRevealLetter}
+                disabled={state.hasWon}
+                style={{ 
+                  background: 'var(--bg-dark)', 
+                  color: '#f43f5e', 
+                  border: '1px solid #f43f5e',
+                  padding: '0.4rem 1rem',
+                  borderRadius: '0.5rem',
+                  cursor: state.hasWon ? 'not-allowed' : 'pointer',
+                  opacity: state.hasWon ? 0.5 : 1,
+                  transition: 'all 0.2s',
+                }}
+              >
+                Reveal Letter (-50)
+              </button>
+              <button
+                className={styles.hintButton}
+                onClick={handlers.handleCheckWord}
+                disabled={state.hasWon}
+                style={{ 
+                  background: 'var(--bg-dark)', 
+                  color: 'var(--text-main)', 
+                  border: '1px solid var(--glass-border)',
+                  padding: '0.4rem 1rem',
+                  borderRadius: '0.5rem',
+                  cursor: state.hasWon ? 'not-allowed' : 'pointer',
+                  opacity: state.hasWon ? 0.5 : 1,
+                  transition: 'all 0.2s',
+                  marginLeft: '0.5rem'
+                }}
+              >
+                Check Word
+              </button>
+              <button
+                className={styles.hintButton}
+                onClick={handlers.handleCheckPuzzle}
+                disabled={state.isSubmitted}
+                style={{ 
+                  background: '#047857', 
+                  color: 'white', 
+                  border: 'none',
+                  padding: '0.4rem 1.5rem',
+                  borderRadius: '0.5rem',
+                  cursor: state.isSubmitted ? 'not-allowed' : 'pointer',
+                  opacity: state.isSubmitted ? 0.5 : 1,
+                  transition: 'all 0.2s',
+                  marginLeft: '0.5rem',
+                  fontWeight: 'bold'
+                }}
+              >
+                {state.isSubmitted ? 'Submitted' : 'Submit Puzzle'}
+              </button>
+              <button
+                className={styles.hintButton}
+                onClick={handleSave}
+                disabled={isSaved}
+                style={{ 
+                  background: isSaved ? '#334155' : 'var(--accent-primary)', 
+                  color: isSaved ? 'var(--text-muted)' : 'black', 
+                  border: 'none',
+                  padding: '0.4rem 1.5rem',
+                  borderRadius: '0.5rem',
+                  cursor: isSaved ? 'not-allowed' : 'pointer',
+                  marginLeft: '0.5rem',
+                  fontWeight: 'bold',
+                  transition: 'all 0.2s'
+                }}
+              >
+                {isSaved ? "Saved ✓" : "Save Puzzle"}
+              </button>
+            </>
+          )}
         </div>
         {saveStatus && (
           <div style={{ color: 'var(--accent-primary)', fontWeight: 'bold', marginTop: '0.5rem' }}>
@@ -200,6 +218,7 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
           onCellFocus={handlers.handleCellFocus}
           onCellChange={handlers.handleCellChange}
           onCellKeyDown={handlers.handleCellKeyDown}
+          onCellClick={handlers.handleCellClick}
           isSubmitted={state.isSubmitted}
         />
 
