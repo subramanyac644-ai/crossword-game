@@ -69,9 +69,9 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
     <div className={styles.boardContainer}>
       <header className="bg-[#0f172a] rounded-2xl p-5 border border-slate-800 shadow-2xl space-y-4 mb-8 mt-4 mx-4">
         {/* Row 1: Back Button & Title */}
-        <div className="flex items-center justify-between relative">
+        <div className="flex items-center justify-between relative px-2">
           <button 
-            className="px-4 py-1.5 rounded-lg border border-slate-700 text-blue-400 text-sm font-bold hover:bg-slate-800 transition-all flex items-center gap-2"
+            className="px-4 py-1.5 rounded-lg border border-sky-500/30 text-sky-400 text-sm font-bold hover:bg-sky-500/10 transition-all flex items-center gap-2"
             onClick={onExit}
             aria-label="Go back to main page"
           >
@@ -79,59 +79,57 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
           </button>
 
           <div className="absolute left-1/2 -translate-x-1/2">
-            <h1 className="text-sm font-bold text-slate-300 tracking-wider">
-              {initialData.metadata.title} Crossword
+            <h1 className="text-sm font-medium text-slate-200">
+              {initialData.metadata.title.toLowerCase()} Crossword
             </h1>
           </div>
 
           <div className="flex-1" />
         </div>
 
-        {/* Row 2: Stats & Action Buttons Grouped */}
-        <div className="flex flex-wrap items-center gap-6">
+        {/* Row 2: Unified Stats & Action Buttons (One Neat Path) */}
+        <div className="flex flex-wrap items-center gap-x-10 gap-y-4 px-2">
           {/* Stats Badges */}
-          <div className="flex items-center gap-8 text-sm font-bold">
-            <div className="flex items-center gap-2">
-              <span className="text-white">Words:</span>
-              <span className="text-[#38bdf8]">{state.completedWords.length} / {initialData.words.length}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-white">Score:</span>
-              <span className="text-[#38bdf8]">{state.score}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-white">Hints:</span>
-              <span className="text-[#c084fc] font-normal">{state.hintsUsed}</span>
-            </div>
+          <div className="flex items-center gap-1.5 text-sm font-bold">
+            <span className="text-white">Words:</span>
+            <span className="text-sky-400 font-black">{state.completedWords.length} / {initialData.words.length}</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-sm font-bold">
+            <span className="text-white">Score:</span>
+            <span className="text-sky-400 font-black">{state.score}</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-sm font-bold">
+            <span className="text-white">Hints:</span>
+            <span className="text-[#a855f7] font-black">{state.hintsUsed}</span>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex flex-wrap items-center gap-2">
+          {/* Action Buttons Sequence */}
+          <div className="flex flex-wrap items-center gap-4">
             {!state.isViewMode && (
               <>
                 <button
-                  className="px-4 py-2 rounded-xl text-xs font-bold border border-sky-600/50 text-sky-400 bg-slate-900/40 hover:bg-sky-500/10 transition-all disabled:opacity-30"
+                  className="px-6 py-2 rounded-xl text-xs font-bold border border-sky-500/40 text-sky-400 bg-slate-900/50 hover:bg-sky-500/10 transition-all"
                   onClick={handlers.useAiHint}
                   disabled={state.hasWon || state.isHintLoading}
                 >
                   {state.isHintLoading ? 'Thinking...' : 'AI Hint'}
                 </button>
                 <button
-                  className="px-4 py-2 rounded-xl text-xs font-bold border border-rose-600/50 text-rose-500 bg-slate-900/40 hover:bg-rose-500/10 transition-all disabled:opacity-30"
+                  className="px-6 py-2 rounded-xl text-xs font-bold border border-rose-500/40 text-rose-500 bg-slate-900/50 hover:bg-rose-500/10 transition-all"
                   onClick={handlers.handleRevealLetter}
                   disabled={state.hasWon}
                 >
                   Reveal Letter (-50)
                 </button>
                 <button
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-[#1e293b] border border-slate-700 text-slate-200 hover:bg-slate-800 disabled:opacity-30"
+                  className="px-6 py-2 rounded-xl text-xs font-bold bg-[#0f172a] border border-slate-700 text-slate-300 hover:bg-slate-800"
                   onClick={handlers.handleCheckWord}
                   disabled={state.hasWon}
                 >
                   Check Word
                 </button>
                 <button
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-[#10b981] text-white hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/10 disabled:opacity-50"
+                  className="px-6 py-2 rounded-xl text-xs font-bold bg-[#059669] text-white hover:bg-[#047857] transition-all"
                   onClick={handlers.handleCheckPuzzle}
                   disabled={state.isSubmitted}
                 >
@@ -140,29 +138,16 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
               </>
             )}
             <button
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-lg ${
+              className={`px-6 py-2 rounded-xl text-xs font-bold transition-all ${
                 isSaved 
                 ? 'bg-slate-800 text-slate-500 border border-slate-700' 
-                : 'bg-[#0ea5e9] text-[#0f172a] hover:bg-[#38bdf8] shadow-sky-500/10'
+                : 'bg-[#38bdf8] text-[#0f172a] hover:bg-[#0ea5e9]'
               }`}
               onClick={handleSave}
               disabled={isSaved}
             >
               {isSaved ? "Saved ✓" : "Save Puzzle"}
             </button>
-            
-            {state.isViewMode && (
-              <button 
-                onClick={handlers.toggleAnswerMode}
-                className={`px-4 py-2 rounded-xl text-xs font-black transition-all border ${
-                  state.isAnswerMode 
-                  ? "bg-emerald-500/20 border-emerald-500 text-emerald-400" 
-                  : "bg-blue-500/10 border-blue-500 text-blue-400"
-                }`}
-              >
-                {state.isAnswerMode ? "View Attempt" : "View Answers"}
-              </button>
-            )}
           </div>
         </div>
 
