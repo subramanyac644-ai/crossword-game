@@ -23,7 +23,8 @@
       "@game-engine/crossword-logic": ["libs/crossword-logic/src/index.ts"],
       "@game-engine/ai-service": ["libs/ai-service/src/index.ts"],
       "@game-engine/crossword-ui": ["libs/crossword-ui/src/index.ts"],
-      "@game-engine/game-engine": ["libs/game-engine/src/index.ts"]
+      "@game-engine/game-engine": ["libs/game-engine/src/index.ts"],
+      "@game-engine/puzzle-storage": ["libs/puzzle-storage/src/index.ts"]
     }
   }
 }

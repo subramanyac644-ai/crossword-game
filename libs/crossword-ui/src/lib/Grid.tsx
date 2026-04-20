@@ -11,6 +11,7 @@ interface GridProps {
   onCellFocus: (row: number, col: number) => void;
   onCellChange: (row: number, col: number, value: string) => void;
   onCellKeyDown: (row: number, col: number, e: React.KeyboardEvent) => void;
+  isSubmitted?: boolean;
 }
 
 export const Grid: React.FC<GridProps> = ({
@@ -21,6 +22,7 @@ export const Grid: React.FC<GridProps> = ({
   onCellFocus,
   onCellChange,
   onCellKeyDown,
+  isSubmitted,
 }) => {
   const activeWord = words.find((w) => w.id === activeWordId);
 
@@ -50,6 +52,7 @@ export const Grid: React.FC<GridProps> = ({
             onFocus={() => onCellFocus(ri, ci)}
             onChange={(val) => onCellChange(ri, ci, val)}
             onKeyDown={(e) => onCellKeyDown(ri, ci, e)}
+            isSubmitted={isSubmitted}
           />
         ))
       )}

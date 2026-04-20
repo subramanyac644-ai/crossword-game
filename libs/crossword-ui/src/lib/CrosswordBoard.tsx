@@ -4,7 +4,9 @@ import { Grid } from './Grid.js';
 import { ClueList } from './ClueList.js';
 import { WinModal } from './WinModal.js';
 import { useCrossword } from './useCrossword.js';
+import { savePuzzle } from '@game-engine/puzzle-storage';
 import styles from './crossword-ui.module.css';
+import { useState } from 'react';
 
 interface CrosswordBoardProps {
   initialData: GameState;
@@ -22,6 +24,7 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
   apiKey: propApiKey,
 }) => {
   const apiKey = propApiKey || (import.meta as any).env.VITE_GEMINI_API_KEY;
+  const [saveStatus, setSaveStatus] = useState<string | null>(null);
   
   const { state, handlers } = useCrossword({
     initialData,
@@ -29,6 +32,18 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
     onRestart,
     apiKey
   });
+
+  const handleSave = () => {
+    savePuzzle({
+      id: `puzzle_${Date.now()}`,
+      topic: initialData.metadata.title,
+      words: initialData.words,
+      grid: state.grid,
+      createdAt: Date.now()
+    });
+    setSaveStatus('Puzzle Saved!');
+    setTimeout(() => setSaveStatus(null), 3000);
+  };
 
   return (
     <div className={styles.boardContainer}>
@@ -101,23 +116,44 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
           <button
             className={styles.hintButton}
             onClick={handlers.handleCheckPuzzle}
-            disabled={state.hasWon}
+            disabled={state.isSubmitted}
             style={{ 
               background: '#047857', 
               color: 'white', 
               border: 'none',
               padding: '0.4rem 1.5rem',
               borderRadius: '0.5rem',
-              cursor: state.hasWon ? 'not-allowed' : 'pointer',
-              opacity: state.hasWon ? 0.5 : 1,
+              cursor: state.isSubmitted ? 'not-allowed' : 'pointer',
+              opacity: state.isSubmitted ? 0.5 : 1,
               transition: 'all 0.2s',
               marginLeft: '0.5rem',
               fontWeight: 'bold'
             }}
           >
-            Submit Puzzle
+            {state.isSubmitted ? 'Submitted' : 'Submit Puzzle'}
+          </button>
+          <button
+            className={styles.hintButton}
+            onClick={handleSave}
+            style={{ 
+              background: 'var(--accent-primary)', 
+              color: 'black', 
+              border: 'none',
+              padding: '0.4rem 1.5rem',
+              borderRadius: '0.5rem',
+              cursor: 'pointer',
+              marginLeft: '0.5rem',
+              fontWeight: 'bold'
+            }}
+          >
+            Save Puzzle
           </button>
         </div>
+        {saveStatus && (
+          <div style={{ color: 'var(--accent-primary)', fontWeight: 'bold', marginTop: '0.5rem' }}>
+            ✅ {saveStatus}
+          </div>
+        )}
         {state.hasWon && (
           <div style={{ color: 'var(--cell-correct)', fontWeight: 'bold', marginTop: '1rem', fontSize: '1.2rem' }}>
             🎉 Puzzle Corrected! Perfect!
@@ -139,6 +175,7 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
           onCellFocus={handlers.handleCellFocus}
           onCellChange={handlers.handleCellChange}
           onCellKeyDown={handlers.handleCellKeyDown}
+          isSubmitted={state.isSubmitted}
         />
 
         <ClueList

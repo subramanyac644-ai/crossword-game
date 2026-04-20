@@ -8,6 +8,7 @@ interface CellProps {
   onFocus: () => void;
   onChange: (value: string) => void;
   onKeyDown: (e: React.KeyboardEvent) => void;
+  isSubmitted?: boolean;
 }
 
 const CellRenderer: React.FC<CellProps> = ({
@@ -16,6 +17,7 @@ const CellRenderer: React.FC<CellProps> = ({
   onFocus,
   onChange,
   onKeyDown,
+  isSubmitted,
 }) => {
   if (cell.isBlocked) {
     return <div className={`${styles.cellWrapper} ${styles.cellBlock}`} />;
@@ -42,6 +44,7 @@ const CellRenderer: React.FC<CellProps> = ({
         autoComplete="off"
         spellCheck="false"
         autoFocus={cell.isFocused}
+        readOnly={isSubmitted}
       />
     </div>
   );
@@ -54,6 +57,7 @@ export const CellComponent = React.memo(CellRenderer, (prevProps, nextProps) => 
     prevProps.isActiveWord === nextProps.isActiveWord &&
     prevProps.cell.userLetter === nextProps.cell.userLetter &&
     prevProps.cell.isFocused === nextProps.cell.isFocused &&
-    prevProps.cell.status === nextProps.cell.status
+    prevProps.cell.status === nextProps.cell.status &&
+    prevProps.isSubmitted === nextProps.isSubmitted
   );
 });

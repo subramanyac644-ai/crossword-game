@@ -4,6 +4,7 @@ const CrosswordBoardLazy = React.lazy(() =>
 );
 import { GameState } from '@game-engine/shared-types';
 import { CrosswordEngine } from '@game-engine/game-engine';
+import { getSavedPuzzles, Puzzle } from '@game-engine/puzzle-storage';
 import styles from './game-container.module.css';
 import * as pdfjsLib from 'pdfjs-dist';
 
@@ -27,6 +28,17 @@ export const GameContainer: React.FC<GameContainerProps> = ({
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [savedGame, setSavedGame] = useState<string | null>(null);
+  const [puzzles, setPuzzles] = useState<Puzzle[]>([]);
+
+  useEffect(() => {
+    // Shared types might be slightly different than what savePuzzle stores (the raw grid vs full state)
+    // But for "Saved Puzzles" we are loading the static puzzle definition.
+    setPuzzles(getSavedPuzzles());
+    
+    const handlePuzzleSaved = () => setPuzzles(getSavedPuzzles());
+    window.addEventListener('puzzle_saved', handlePuzzleSaved);
+    return () => window.removeEventListener('puzzle_saved', handlePuzzleSaved);
+  }, []);
 
   useEffect(() => {
     // Check for any saved games in localStorage
@@ -47,6 +59,25 @@ export const GameContainer: React.FC<GameContainerProps> = ({
         setError('Failed to load saved game.');
       }
     }
+  };
+
+  const loadSavedPuzzle = (puzzle: Puzzle) => {
+    // Construct a fresh GameState from the saved puzzle definition
+    const freshState: GameState = {
+      grid: puzzle.grid,
+      words: puzzle.words,
+      score: 0,
+      hintsUsed: 0,
+      selectedWord: null,
+      direction: 'across',
+      metadata: {
+        title: puzzle.topic,
+        author: 'Gemini AI'
+      },
+      hasWon: false,
+      completedWords: []
+    };
+    setGameState(freshState);
   };
 
   const startNewGame = async (promptQuery: string, documentName?: string) => {
@@ -199,6 +230,32 @@ export const GameContainer: React.FC<GameContainerProps> = ({
               Max file size: 10MB. We extract text natively in your browser!
             </p>
           </div>
+
+          {puzzles.length > 0 && (
+            <div className={styles.savedPuzzlesSection}>
+              <h2 className={styles.sectionTitle}>
+                <span style={{ fontSize: '1.2rem' }}>📚</span> Saved Puzzles
+              </h2>
+              <div className={styles.puzzlesGrid}>
+                {puzzles.map((p) => (
+                  <div 
+                    key={p.id} 
+                    className={styles.puzzleCard}
+                    onClick={() => loadSavedPuzzle(p)}
+                  >
+                    <div className={styles.puzzleTopic}>{p.topic}</div>
+                    <div className={styles.puzzleDate}>
+                      {new Date(p.createdAt).toLocaleDateString(undefined, { 
+                        month: 'short', 
+                        day: 'numeric', 
+                        year: 'numeric' 
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {savedGame && !loading && (
             <button className={styles.resumeButton} onClick={resumeGame}>

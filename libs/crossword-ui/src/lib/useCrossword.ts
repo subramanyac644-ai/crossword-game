@@ -58,6 +58,10 @@ export function useCrossword({ initialData, onComplete, onRestart, apiKey }: Use
   });
 
   const [hasWon, setHasWon] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved && JSON.parse(saved).isSubmitted !== undefined ? JSON.parse(saved).isSubmitted : false;
+  });
 
   useEffect(() => {
     let interval: any;
@@ -70,9 +74,9 @@ export function useCrossword({ initialData, onComplete, onRestart, apiKey }: Use
   }, [hasWon]);
 
   useEffect(() => {
-    const fullState = { ...initialData, grid, score, hintsUsed, completedWords, elapsedSeconds, hasWon };
+    const fullState = { ...initialData, grid, score, hintsUsed, completedWords, elapsedSeconds, hasWon, isSubmitted };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(fullState));
-  }, [grid, score, hintsUsed, completedWords, elapsedSeconds, hasWon, STORAGE_KEY, initialData]);
+  }, [grid, score, hintsUsed, completedWords, elapsedSeconds, hasWon, isSubmitted, STORAGE_KEY, initialData]);
 
   const activeWordId = useMemo(() => {
     return initialData.words.find((w) => {
@@ -89,7 +93,7 @@ export function useCrossword({ initialData, onComplete, onRestart, apiKey }: Use
   }, [direction, focus, initialData.words]);
 
   const handleCellChange = (row: number, col: number, value: string) => {
-    if (hasWon) return;
+    if (hasWon || isSubmitted) return;
 
     const char = value.slice(-1).toUpperCase();
     const newGrid = grid.map((r, ri) =>
@@ -121,7 +125,7 @@ export function useCrossword({ initialData, onComplete, onRestart, apiKey }: Use
   };
 
   const handleCellKeyDown = (row: number, col: number, e: React.KeyboardEvent) => {
-    if (hasWon) return;
+    if (hasWon || isSubmitted) return;
 
     if (e.key === 'Backspace' && !grid[row][col].userLetter) {
       const prev = getNextFocusableCell(grid, row, col, 'Backward', direction);
@@ -170,7 +174,7 @@ export function useCrossword({ initialData, onComplete, onRestart, apiKey }: Use
   };
 
   const handleRevealLetter = () => {
-    if (hasWon) return;
+    if (hasWon || isSubmitted) return;
     const activeWord = initialData.words.find((w) => w.id === activeWordId);
     if (!activeWord) {
       setAiHint("Please select a word to reveal a letter.");
@@ -208,7 +212,7 @@ export function useCrossword({ initialData, onComplete, onRestart, apiKey }: Use
   };
 
   const handleCheckWord = () => {
-    if (hasWon) return;
+    if (hasWon || isSubmitted) return;
     const activeWord = initialData.words.find((w) => w.id === activeWordId);
     if (!activeWord) {
       setAiHint("Please select a word to verify.");
@@ -228,7 +232,7 @@ export function useCrossword({ initialData, onComplete, onRestart, apiKey }: Use
   };
 
   const handleCheckPuzzle = () => {
-    if (hasWon) return;
+    if (hasWon || isSubmitted) return;
     
     const newGrid = grid.map(r => r.map(c => ({ ...c })));
     let allCorrect = true;
@@ -244,6 +248,8 @@ export function useCrossword({ initialData, onComplete, onRestart, apiKey }: Use
               allCorrect = false;
             }
           } else {
+            c.userLetter = c.correctLetter; // reveal correct letter for empty cell
+            c.status = 'error'; // marked error as user didn't fill it
             allCorrect = false;
           }
         }
@@ -251,8 +257,7 @@ export function useCrossword({ initialData, onComplete, onRestart, apiKey }: Use
     });
 
     setGrid(newGrid);
-    
-    // Always trigger the end-game summary screen
+    setIsSubmitted(true);
     setHasWon(true);
     if (allCorrect && onComplete) onComplete();
   };
@@ -275,6 +280,7 @@ export function useCrossword({ initialData, onComplete, onRestart, apiKey }: Use
       aiHint,
       isHintLoading,
       hasWon,
+      isSubmitted,
     },
     handlers: {
       handleCellChange,
