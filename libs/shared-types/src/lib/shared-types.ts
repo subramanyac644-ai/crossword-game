@@ -58,6 +58,7 @@ export interface GameState {
   direction: Direction;
   metadata: GameMetadata;
   hasWon: boolean;
+  isSubmitted?: boolean;
   elapsedSeconds?: number;
   completedWords?: string[];
 }
