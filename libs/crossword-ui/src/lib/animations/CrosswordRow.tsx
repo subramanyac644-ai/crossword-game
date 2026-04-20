@@ -2,27 +2,23 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 export const CrosswordRow: React.FC = () => {
-  const cells = ['C', 'R', 'O', 'S', 'S', 'W', 'O', 'R', 'D'];
-  
   return (
     <motion.div 
-      className="flex gap-2 p-2 bg-slate-800/40 rounded-lg backdrop-blur-sm border border-slate-700/50"
+      className="flex gap-2 p-2 bg-white/5 rounded-lg backdrop-blur-sm border border-white/10"
       initial={{ x: '100vw', opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ 
         type: 'spring', 
-        stiffness: 100, 
-        damping: 20, 
-        duration: 0.8 
+        stiffness: 80, 
+        damping: 15, 
+        duration: 1 
       }}
     >
-      {cells.map((char, index) => (
+      {[1, 2, 3, 4, 5, 6].map((i) => (
         <div 
-          key={index} 
-          className="w-10 h-10 md:w-12 md:h-12 bg-white flex items-center justify-center rounded shadow-lg"
-        >
-          <span className="text-slate-900 font-bold text-lg md:text-xl">{char}</span>
-        </div>
+          key={i} 
+          className="w-10 h-10 bg-white rounded-[2px] shadow-xl"
+        />
       ))}
     </motion.div>
   );
