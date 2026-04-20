@@ -72,48 +72,57 @@ export const AnimatedLanding: React.FC<AnimatedLandingProps> = ({ onComplete }) 
             exit={{ opacity: 0 }}
             transition={{ duration: 1 }}
           >
-            {/* Central Glow Background */}
-            <div className="absolute -z-10 w-[500px] h-[300px] bg-blue-600/20 rounded-full blur-[140px] animate-pulse" />
-            <div className="absolute -z-10 w-[300px] h-[300px] bg-purple-600/10 rounded-full blur-[100px] animate-pulse delay-700" />
+            {/* Massive Central Glow Background */}
+            <div className="absolute -z-10 w-[600px] h-[400px] bg-blue-500/30 rounded-full blur-[150px] animate-pulse" />
+            <div className="absolute -z-10 w-[400px] h-[400px] bg-indigo-600/20 rounded-full blur-[120px] animate-pulse delay-700" />
 
-            {/* Main Logo Text */}
+            {/* Main Logo Text - BIG SIZE & MATCHING COLOR */}
             <motion.div
-              initial={{ scale: 0.9, filter: 'blur(10px)' }}
-              animate={{ scale: 1, filter: 'blur(0px)' }}
-              transition={{ duration: 1.2, ease: 'easeOut' }}
+              initial={{ scale: 0.85, filter: 'blur(20px)', y: 20 }}
+              animate={{ scale: 1, filter: 'blur(0px)', y: 0 }}
+              transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+              className="relative"
             >
-              <h1 className="text-7xl md:text-9xl font-black tracking-tight text-white drop-shadow-[0_0_30px_rgba(56,189,248,0.4)]">
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-blue-200 to-white">
+              <h1 className="text-8xl md:text-[11rem] font-black tracking-tighter leading-none select-none">
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#38bdf8] via-[#60a5fa] to-white drop-shadow-[0_0_40px_rgba(56,189,248,0.3)]">
                   Crossword
                 </span>
-                <span className="ml-4 bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-300 to-purple-500">
+                <span className="ml-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-[#a78bfa] to-[#c084fc] drop-shadow-[0_0_40px_rgba(167,139,250,0.3)]">
                   Hub
                 </span>
               </h1>
+              
+              {/* Central Optical Flare (The bright spot in the image) */}
+              <motion.div 
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-white rounded-full blur-2xl opacity-40 mix-blend-screen"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: [0, 1.5, 1], opacity: [0, 0.6, 0.4] }}
+                transition={{ delay: 0.5, duration: 1 }}
+              />
+              
+              {/* Horizontal Lens Streak */}
+              <motion.div 
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[2px] w-[150%] bg-gradient-to-r from-transparent via-blue-400 to-transparent mix-blend-screen"
+                initial={{ scaleX: 0, opacity: 0 }}
+                animate={{ scaleX: 1, opacity: 0.6 }}
+                transition={{ delay: 0.7, duration: 0.8 }}
+              />
             </motion.div>
             
-            {/* Subtitle */}
+            {/* Subtitle - Refined Layout */}
             <motion.div 
-              className="mt-10 space-y-2"
-              initial={{ opacity: 0, y: 20 }}
+              className="mt-12 space-y-3"
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1, duration: 0.8 }}
+              transition={{ delay: 1.2, duration: 1 }}
             >
-              <p className="text-xl md:text-2xl text-slate-400 font-medium max-w-3xl leading-relaxed mx-auto italic">
-                Unleash your curiosity. <span className="text-white not-italic font-bold">Enter a topic</span> or upload a document,
+              <p className="text-2xl md:text-3xl text-slate-400 font-medium max-w-4xl leading-snug mx-auto">
+                Unleash your curiosity. <span className="text-white font-bold underline decoration-blue-500/50 decoration-2 underline-offset-8">Enter a topic</span> or upload a document,
               </p>
-              <p className="text-xl md:text-2xl text-slate-400 font-medium max-w-3xl leading-relaxed mx-auto italic">
+              <p className="text-2xl md:text-3xl text-slate-400 font-medium max-w-4xl leading-snug mx-auto italic opacity-80">
                 and our AI will craft a unique crossword puzzle from it.
               </p>
             </motion.div>
-
-            {/* Visual Flare Streak (from the image) */}
-            <motion.div 
-              className="absolute h-[1px] w-full max-w-4xl bg-gradient-to-r from-transparent via-blue-500 to-transparent top-1/2 opacity-30"
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ delay: 0.5, duration: 2 }}
-            />
           </motion.div>
         )}
       </AnimatePresence>
