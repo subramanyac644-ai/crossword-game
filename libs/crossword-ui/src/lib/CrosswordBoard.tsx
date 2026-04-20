@@ -67,185 +67,154 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
 
   return (
     <div className={styles.boardContainer}>
-      <header className={styles.boardHeader}>
-        <div className={styles.headerTop}>
-          <button 
-            className={styles.backButton} 
-            onClick={onExit}
-            aria-label="Go back to main page"
-          >
-            ← Back
-          </button>
-          <h1>{initialData.metadata.title}</h1>
-          {state.isViewMode && (
+      <header className="bg-slate-800 rounded-2xl p-6 border border-slate-700 shadow-2xl space-y-6 mb-8 mt-4 mx-4">
+        {/* Top Navigation & Title Bar */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="w-full md:w-auto flex justify-start">
             <button 
-              onClick={handlers.toggleAnswerMode}
-              className={styles.viewModeToggle}
-              style={{ 
-                background: state.isAnswerMode ? '#22c55e' : 'rgba(56, 189, 248, 0.1)', 
-                color: state.isAnswerMode ? 'white' : '#38bdf8', 
-                padding: '0.4rem 1rem', 
-                borderRadius: '0.5rem',
-                fontSize: '0.85rem',
-                fontWeight: 'bold',
-                border: `1px solid ${state.isAnswerMode ? '#22c55e' : 'rgba(56, 189, 248, 0.2)'}`,
-                marginLeft: '1rem',
-                cursor: 'pointer',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-              }}
+              className="px-5 py-2.5 rounded-xl transition-all duration-300 font-bold shadow-lg active:scale-95 flex items-center gap-2 border-2 border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white hover:border-slate-500"
+              onClick={onExit}
+              aria-label="Go back to main page"
             >
-              {state.isAnswerMode ? "Viewing Correct Answers ✓" : "Viewing Saved Puzzle (Answers Mode)"}
+              ← Back
             </button>
-          )}
+          </div>
+
+          <div className="flex-1 text-center">
+            <h1 className="text-3xl md:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-500 tracking-tight drop-shadow-[0_2px_15px_rgba(129,140,248,0.4)] uppercase">
+              {initialData.metadata.title}
+            </h1>
+            {state.isViewMode && (
+              <button 
+                onClick={handlers.toggleAnswerMode}
+                className={`mt-3 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-500 border-2 ${
+                  state.isAnswerMode 
+                  ? "bg-emerald-500/20 border-emerald-500 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)]" 
+                  : "bg-blue-500/10 border-blue-500/50 text-blue-400 hover:border-blue-400"
+                }`}
+              >
+                {state.isAnswerMode ? "Showing Solutions ✓" : "Quiz Mode Active"}
+              </button>
+            )}
+          </div>
+
+          <div className="w-full md:w-auto flex flex-wrap justify-center md:justify-end gap-3">
+            {!state.isViewMode && (
+              <>
+                <button
+                  className="px-4 py-2.5 rounded-xl transition-all duration-300 font-bold shadow-lg active:scale-95 flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-blue-600 text-white hover:shadow-[0_0_20px_rgba(79,70,229,0.5)] disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={handlers.useAiHint}
+                  disabled={state.hasWon || state.isHintLoading}
+                >
+                  <span className="text-lg">💡</span>
+                  {state.isHintLoading ? 'Thinking...' : 'AI Hint'}
+                </button>
+                <button
+                  className="px-4 py-2.5 rounded-xl transition-all duration-300 font-bold shadow-lg active:scale-95 flex items-center gap-2 bg-gradient-to-r from-rose-500 to-red-600 text-white hover:shadow-[0_0_20px_rgba(244,63,94,0.4)] disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={handlers.handleRevealLetter}
+                  disabled={state.hasWon}
+                >
+                  <span className="text-lg">🔍</span>
+                  Reveal (-50)
+                </button>
+              </>
+            )}
+          </div>
         </div>
-        <div className={styles.statsBar}>
-          {state.isViewMode ? (
-            <div className={styles.statsCardGrid}>
-              <div className={styles.statItem}>
-                <span className={styles.statLabel}>⏱ Time Taken</span>
-                <span className={styles.statValue}>{new Date((state.elapsedSeconds || 0) * 1000).toISOString().substr(14, 5)}</span>
+
+        {/* Stats & Actions Row */}
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-6 pt-4 border-t border-slate-700/50">
+          <div className="flex flex-wrap items-center gap-3">
+            {state.isViewMode ? (
+              <div className="flex flex-wrap gap-4">
+                <div className="bg-slate-900/60 px-4 py-2 rounded-xl border border-slate-700/50 backdrop-blur-sm group transition-all hover:border-blue-500/30">
+                  <span className="text-[10px] text-slate-500 uppercase font-black block mb-0.5">⏱ Time</span>
+                  <span className="text-blue-400 font-mono font-bold text-lg">{new Date((state.elapsedSeconds || 0) * 1000).toISOString().substr(14, 5)}</span>
+                </div>
+                <div className="bg-slate-900/60 px-4 py-2 rounded-xl border border-slate-700/50 backdrop-blur-sm group transition-all hover:border-purple-500/30">
+                  <span className="text-[10px] text-slate-500 uppercase font-black block mb-0.5">🧮 Score</span>
+                  <span className="text-purple-400 font-bold text-lg">{state.score}</span>
+                </div>
+                <div className="bg-slate-900/60 px-4 py-2 rounded-xl border border-slate-700/50 backdrop-blur-sm group transition-all hover:border-emerald-500/30">
+                  <span className="text-[10px] text-slate-500 uppercase font-black block mb-0.5">✅ Correct</span>
+                  <span className="text-emerald-400 font-bold text-lg">{state.completedWords.length}</span>
+                </div>
+                <div className="bg-slate-900/60 px-4 py-2 rounded-xl border border-slate-700/50 backdrop-blur-sm group transition-all hover:border-rose-500/30">
+                  <span className="text-[10px] text-slate-500 uppercase font-black block mb-0.5">❌ Errors</span>
+                  <span className="text-rose-400 font-bold text-lg">{initialData.words.length - state.completedWords.length}</span>
+                </div>
               </div>
-              <div className={styles.statItem}>
-                <span className={styles.statLabel}>🧮 Score</span>
-                <span className={styles.statValue}>{state.score}</span>
-              </div>
-              <div className={styles.statItem}>
-                <span className={styles.statLabel}>💡 Hints</span>
-                <span className={styles.statValue}>{state.hintsUsed}</span>
-              </div>
-              <div className={styles.statItem}>
-                <span className={styles.statLabel}>✅ Correct</span>
-                <span className={styles.statValue} style={{ color: '#22c55e' }}>{state.completedWords.length}</span>
-              </div>
-              <div className={styles.statItem}>
-                <span className={styles.statLabel}>❌ Incorrect</span>
-                <span className={styles.statValue} style={{ color: '#ef4444' }}>{initialData.words.length - state.completedWords.length}</span>
-              </div>
-            </div>
-          ) : (
-            <>
-              <span>
-                Words: <span style={{ color: 'var(--accent-primary)' }}>{state.completedWords.length} / {initialData.words.length}</span>
-              </span>
-              <span>
-                Score: <span style={{ color: 'var(--accent-primary)' }}>{state.score}</span>
-              </span>
-              <span>
-                Hints: <span style={{ color: 'var(--accent-secondary)' }}>{state.hintsUsed}</span>
-              </span>
-            </>
-          )}
+            ) : (
+              <>
+                <div className="flex items-center gap-2 bg-slate-900/60 px-3 py-1.5 rounded-lg border border-slate-700/50">
+                  <span className="text-slate-500 font-bold text-xs uppercase">Words</span>
+                  <span className="text-blue-400 font-black">{state.completedWords.length} / {initialData.words.length}</span>
+                </div>
+                <div className="flex items-center gap-2 bg-slate-900/60 px-3 py-1.5 rounded-lg border border-slate-700/50">
+                  <span className="text-slate-500 font-bold text-xs uppercase">Score</span>
+                  <span className="text-indigo-400 font-black">{state.score}</span>
+                </div>
+                <div className="flex items-center gap-2 bg-slate-900/60 px-3 py-1.5 rounded-lg border border-slate-700/50">
+                  <span className="text-slate-500 font-bold text-xs uppercase">Hints</span>
+                  <span className="text-rose-400 font-black">{state.hintsUsed}</span>
+                </div>
+              </>
+            )}
+          </div>
+
           {!state.isViewMode && (
-            <>
+            <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
               <button
-                className={styles.hintButton}
-                onClick={handlers.useAiHint}
-                disabled={state.hasWon || state.isHintLoading}
-                style={{ 
-                  background: 'var(--bg-dark)', 
-                  color: 'var(--accent-primary)', 
-                  border: '1px solid var(--accent-primary)',
-                  padding: '0.4rem 1rem',
-                  borderRadius: '0.5rem',
-                  cursor: (state.hasWon || state.isHintLoading) ? 'not-allowed' : 'pointer',
-                  opacity: (state.hasWon || state.isHintLoading) ? 0.5 : 1,
-                  transition: 'all 0.2s',
-                  minWidth: '90px',
-                  marginRight: '0.5rem'
-                }}
-              >
-                {state.isHintLoading ? 'Thinking...' : 'AI Hint'}
-              </button>
-              <button
-                className={styles.hintButton}
-                onClick={handlers.handleRevealLetter}
-                disabled={state.hasWon}
-                style={{ 
-                  background: 'var(--bg-dark)', 
-                  color: '#f43f5e', 
-                  border: '1px solid #f43f5e',
-                  padding: '0.4rem 1rem',
-                  borderRadius: '0.5rem',
-                  cursor: state.hasWon ? 'not-allowed' : 'pointer',
-                  opacity: state.hasWon ? 0.5 : 1,
-                  transition: 'all 0.2s',
-                }}
-              >
-                Reveal Letter (-50)
-              </button>
-              <button
-                className={styles.hintButton}
+                className="flex-1 lg:flex-none px-5 py-2.5 rounded-xl transition-all duration-300 font-bold shadow-lg active:scale-95 bg-slate-900 border border-slate-700 text-slate-200 hover:bg-slate-800 disabled:opacity-50"
                 onClick={handlers.handleCheckWord}
                 disabled={state.hasWon}
-                style={{ 
-                  background: 'var(--bg-dark)', 
-                  color: 'var(--text-main)', 
-                  border: '1px solid var(--glass-border)',
-                  padding: '0.4rem 1rem',
-                  borderRadius: '0.5rem',
-                  cursor: state.hasWon ? 'not-allowed' : 'pointer',
-                  opacity: state.hasWon ? 0.5 : 1,
-                  transition: 'all 0.2s',
-                  marginLeft: '0.5rem'
-                }}
               >
                 Check Word
               </button>
               <button
-                className={styles.hintButton}
+                className={`flex-1 lg:flex-none px-6 py-2.5 rounded-xl transition-all duration-300 font-black shadow-lg active:scale-95 text-white ${
+                  state.isSubmitted 
+                  ? 'bg-slate-700 cursor-not-allowed opacity-50' 
+                  : 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:scale-105 hover:shadow-[0_0_20px_rgba(16,185,129,0.4)]'
+                }`}
                 onClick={handlers.handleCheckPuzzle}
                 disabled={state.isSubmitted}
-                style={{ 
-                  background: '#047857', 
-                  color: 'white', 
-                  border: 'none',
-                  padding: '0.4rem 1.5rem',
-                  borderRadius: '0.5rem',
-                  cursor: state.isSubmitted ? 'not-allowed' : 'pointer',
-                  opacity: state.isSubmitted ? 0.5 : 1,
-                  transition: 'all 0.2s',
-                  marginLeft: '0.5rem',
-                  fontWeight: 'bold'
-                }}
               >
-                {state.isSubmitted ? 'Submitted' : 'Submit Puzzle'}
+                {state.isSubmitted ? 'SUBMITTED' : 'SUBMIT PUZZLE'}
               </button>
               <button
-                className={styles.hintButton}
+                className={`flex-1 lg:flex-none px-6 py-2.5 rounded-xl transition-all duration-300 font-black shadow-lg active:scale-95 ${
+                  isSaved 
+                  ? 'bg-slate-800 border border-emerald-500/50 text-emerald-400 cursor-default' 
+                  : 'bg-gradient-to-r from-cyan-500 to-sky-600 text-white hover:shadow-[0_0_20px_rgba(6,182,212,0.4)]'
+                }`}
                 onClick={handleSave}
                 disabled={isSaved}
-                style={{ 
-                  background: isSaved ? '#334155' : 'var(--accent-primary)', 
-                  color: isSaved ? 'var(--text-muted)' : 'black', 
-                  border: 'none',
-                  padding: '0.4rem 1.5rem',
-                  borderRadius: '0.5rem',
-                  cursor: isSaved ? 'not-allowed' : 'pointer',
-                  marginLeft: '0.5rem',
-                  fontWeight: 'bold',
-                  transition: 'all 0.2s'
-                }}
               >
-                {isSaved ? "Saved ✓" : "Save Puzzle"}
+                {isSaved ? "SAVED ✓" : "SAVE PUZZLE"}
               </button>
-            </>
+            </div>
           )}
         </div>
-        {saveStatus && (
-          <div style={{ color: 'var(--accent-primary)', fontWeight: 'bold', marginTop: '0.5rem' }}>
-            ✅ {saveStatus}
-          </div>
-        )}
-        {state.hasWon && (
-          <div style={{ color: 'var(--cell-correct)', fontWeight: 'bold', marginTop: '1rem', fontSize: '1.2rem' }}>
-            🎉 Puzzle Corrected! Perfect!
-          </div>
-        )}
-        {state.aiHint && (
-          <div style={{ marginTop: '1rem', fontStyle: 'italic', color: 'var(--accent-secondary)' }}>
-            <strong>AI Idea:</strong> {state.aiHint}
-          </div>
-        )}
+
+        {/* Message Notifications */}
+        <div className="flex flex-col gap-2">
+          {saveStatus && (
+            <div className="text-emerald-400 font-bold text-sm flex items-center gap-2 animate-bounce">
+              <span className="p-1 bg-emerald-500/20 rounded-full text-[10px]">✓</span> {saveStatus}
+            </div>
+          )}
+          {state.hasWon && !state.isSubmitted && (
+            <div className="bg-emerald-500/10 text-emerald-400 px-4 py-2 rounded-lg border border-emerald-500/20 font-black text-center animate-pulse">
+              🎉 PUZZLE COMPLETED! PERFECT!
+            </div>
+          )}
+          {state.aiHint && (
+            <div className="bg-indigo-500/10 p-4 rounded-xl border border-indigo-500/20 text-slate-300 text-sm italic shadow-inner">
+              <span className="text-indigo-400 font-black not-italic mr-2">AI IDEA:</span> {state.aiHint}
+            </div>
+          )}
+        </div>
       </header>
 
       <main className={styles.boardLayout}>
