@@ -88,7 +88,7 @@ export const GameContainer: React.FC<GameContainerProps> = ({
           localStorage.removeItem(key);
         }
       });
-      setSavedGame(null);
+
 
       if (!apiKey) {
         throw new Error('API Key is missing. Please provide a valid key via props.');

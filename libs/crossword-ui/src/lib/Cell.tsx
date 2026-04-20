@@ -23,6 +23,7 @@ const CellRenderer: React.FC<CellProps> = ({
   onClick,
   isSubmitted,
   isViewMode,
+  isAnswerMode,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
