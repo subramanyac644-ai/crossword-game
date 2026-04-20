@@ -6,6 +6,8 @@ import { GameState } from '@game-engine/shared-types';
 import { CrosswordEngine } from '@game-engine/game-engine';
 import { getSavedPuzzles, deletePuzzle, Puzzle } from '@game-engine/puzzle-storage';
 import styles from './game-container.module.css';
+import { AnimatedLanding } from './animations/AnimatedLanding.js';
+import { AnimatePresence, motion } from 'framer-motion';
 import * as pdfjsLib from 'pdfjs-dist';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
@@ -27,9 +29,9 @@ export const GameContainer: React.FC<GameContainerProps> = ({
   const [loading, setLoading] = useState(false);
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [savedGame, setSavedGame] = useState<string | null>(null);
   const [puzzles, setPuzzles] = useState<Puzzle[]>([]);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showLanding, setShowLanding] = useState(true);
 
   useEffect(() => {
     // Shared types might be slightly different than what savePuzzle stores (the raw grid vs full state)
@@ -41,26 +43,9 @@ export const GameContainer: React.FC<GameContainerProps> = ({
     return () => window.removeEventListener('puzzle_saved', handlePuzzleSaved);
   }, []);
 
-  useEffect(() => {
-    // Check for any saved games in localStorage
-    const saved = Object.keys(localStorage).find(key => key.startsWith('crossword_save_'));
-    if (saved) {
-      setSavedGame(saved);
-    }
-  }, [gameState]);
 
-  const resumeGame = () => {
-    if (!savedGame) return;
-    const data = localStorage.getItem(savedGame);
-    if (data) {
-      try {
-        const parsed = JSON.parse(data);
-        setGameState(parsed);
-      } catch (e) {
-        setError('Failed to load saved game.');
-      }
-    }
-  };
+
+
 
   const loadSavedPuzzle = (puzzle: Puzzle) => {
     console.log("Loading saved puzzle:", puzzle.topic, puzzle.id);
@@ -176,152 +161,162 @@ export const GameContainer: React.FC<GameContainerProps> = ({
 
   return (
     <div className={styles.container} data-theme={theme}>
-      {loading && (
-        <div className={`${styles.loadingOverlay} ${styles.shimmer}`}>
-          <div className={styles.pulse} />
-          <h2 style={{ color: '#38bdf8', fontSize: '1.5rem' }}>AI is drafting your puzzle...</h2>
-          <p style={{ color: '#94a3b8' }}>Generating clues and weaving words together.</p>
-        </div>
-      )}
+      <AnimatePresence mode="wait">
+        {showLanding ? (
+          <AnimatedLanding key="landing" onComplete={() => setShowLanding(false)} />
+        ) : (
+          <motion.div 
+            key="game-content"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8 }}
+            className="w-full flex flex-col items-center"
+          >
+            {loading && (
+              <div className={`${styles.loadingOverlay} ${styles.shimmer}`}>
+                <div className={styles.pulse} />
+                <h2 style={{ color: '#38bdf8', fontSize: '1.5rem' }}>AI is drafting your puzzle...</h2>
+                <p style={{ color: '#94a3b8' }}>Generating clues and weaving words together.</p>
+              </div>
+            )}
 
-      {!gameState ? (
-        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <div className={styles.hero}>
-            <h1 className={styles.title}>Crossword Hub</h1>
-            <p className={styles.subtitle}>
-              Unleash your curiosity. Enter a topic or upload a document, and our AI will craft a unique 
-              crossword puzzle from it.
-            </p>
-          </div>
-          
-          <div className={styles.inputGroup} style={{ flexDirection: 'column', gap: '1rem', width: '100%', maxWidth: '600px', margin: '0 auto' }}>
-            <div style={{ display: 'flex', gap: '0.5rem', width: '100%' }}>
-              <input 
-                className={styles.input}
-                value={topic}
-                onChange={(e) => setTopic(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && topic.trim() && handleGenerateTopic()}
-                placeholder="e.g. quantum physics, 90s rock..."
-                style={{ flex: 1 }}
-              />
-              <button 
-                className={styles.startButton}
-                onClick={handleGenerateTopic}
-                disabled={loading || !topic.trim()}
-              >
-                Generate
-              </button>
-            </div>
-            
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', width: '100%' }}>
-              <hr style={{ flex: 1, borderColor: 'var(--glass-border)' }} />
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem', textTransform: 'uppercase' }}>OR</span>
-              <hr style={{ flex: 1, borderColor: 'var(--glass-border)' }} />
-            </div>
-
-            <div style={{ display: 'flex', width: '100%', gap: '0.5rem' }}>
-              <input 
-                type="file" 
-                id="file-upload"
-                accept=".txt,.pdf"
-                onChange={handleFileUpload}
-                style={{ display: 'none' }}
-              />
-              <label 
-                htmlFor="file-upload"
-                className={styles.startButton}
-                style={{ 
-                  flex: 1, 
-                  textAlign: 'center', 
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  background: 'transparent',
-                  border: '2px dashed var(--accent-secondary)',
-                  color: 'var(--accent-secondary)'
-                }}
-              >
-                Upload Document (PDF / TXT)
-              </label>
-            </div>
-            <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', textAlign: 'center', margin: 0 }}>
-              Max file size: 10MB. We extract text natively in your browser!
-            </p>
-          </div>
-
-          {successMessage && (
-            <div className={styles.successMsg}>
-              {successMessage}
-            </div>
-          )}
-
-          {puzzles.length > 0 && (
-            <div className={styles.savedPuzzlesSection}>
-              <h2 className={styles.sectionTitle}>
-                <span style={{ fontSize: '1.2rem' }}>📚</span> Saved Puzzles
-              </h2>
-              <div className={styles.puzzlesGrid}>
-                {puzzles.map((p) => (
-                  <div 
-                    key={p.id} 
-                    className={styles.puzzleCard}
-                    onClick={() => loadSavedPuzzle(p)}
-                  >
+            {!gameState ? (
+              <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <div className={styles.hero}>
+                  <h1 className={styles.title}>Crossword Hub</h1>
+                  <p className={styles.subtitle}>
+                    Unleash your curiosity. Enter a topic or upload a document, and our AI will craft a unique 
+                    crossword puzzle from it.
+                  </p>
+                </div>
+                
+                <div className={styles.inputGroup} style={{ flexDirection: 'column', gap: '1rem', width: '100%', maxWidth: '600px', margin: '0 auto' }}>
+                  <div style={{ display: 'flex', gap: '0.5rem', width: '100%' }}>
+                    <input 
+                      className={styles.input}
+                      value={topic}
+                      onChange={(e) => setTopic(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && topic.trim() && handleGenerateTopic()}
+                      placeholder="e.g. quantum physics, 90s rock..."
+                      style={{ flex: 1 }}
+                    />
                     <button 
-                      className={styles.deleteBtn}
-                      onClick={(e) => handleDeletePuzzle(e, p.id)}
-                      title="Delete Puzzle"
+                      className={styles.startButton}
+                      onClick={handleGenerateTopic}
+                      disabled={loading || !topic.trim()}
                     >
-                      🗑️
+                      Generate
                     </button>
-                    <div className={styles.puzzleTopic}>{p.topic}</div>
-                    <div className={styles.puzzleDate}>
-                      {new Date(p.createdAt).toLocaleDateString(undefined, { 
-                        month: 'short', 
-                        day: 'numeric', 
-                        year: 'numeric' 
-                      })}
+                  </div>
+                  
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', width: '100%' }}>
+                    <hr style={{ flex: 1, borderColor: 'var(--glass-border)' }} />
+                    <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem', textTransform: 'uppercase' }}>OR</span>
+                    <hr style={{ flex: 1, borderColor: 'var(--glass-border)' }} />
+                  </div>
+
+                  <div style={{ display: 'flex', width: '100%', gap: '0.5rem' }}>
+                    <input 
+                      type="file" 
+                      id="file-upload"
+                      accept=".txt,.pdf"
+                      onChange={handleFileUpload}
+                      style={{ display: 'none' }}
+                    />
+                    <label 
+                      htmlFor="file-upload"
+                      className={styles.startButton}
+                      style={{ 
+                        flex: 1, 
+                        textAlign: 'center', 
+                        cursor: loading ? 'not-allowed' : 'pointer',
+                        background: 'transparent',
+                        border: '2px dashed var(--accent-secondary)',
+                        color: 'var(--accent-secondary)'
+                      }}
+                    >
+                      Upload Document (PDF / TXT)
+                    </label>
+                  </div>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', textAlign: 'center', margin: 0 }}>
+                    Max file size: 10MB. We extract text natively in your browser!
+                  </p>
+                </div>
+
+                {successMessage && (
+                  <div className={styles.successMsg}>
+                    {successMessage}
+                  </div>
+                )}
+
+                {puzzles.length > 0 && (
+                  <div className={styles.savedPuzzlesSection}>
+                    <h2 className={styles.sectionTitle}>
+                      <span style={{ fontSize: '1.2rem' }}>📚</span> Saved Puzzles
+                    </h2>
+                    <div className={styles.puzzlesGrid}>
+                      {puzzles.map((p) => (
+                        <div 
+                          key={p.id} 
+                          className={styles.puzzleCard}
+                          onClick={() => loadSavedPuzzle(p)}
+                        >
+                          <button 
+                            className={styles.deleteBtn}
+                            onClick={(e) => handleDeletePuzzle(e, p.id)}
+                            title="Delete Puzzle"
+                          >
+                            🗑️
+                          </button>
+                          <div className={styles.puzzleTopic}>{p.topic}</div>
+                          <div className={styles.puzzleDate}>
+                            {new Date(p.createdAt).toLocaleDateString(undefined, { 
+                              month: 'short', 
+                              day: 'numeric', 
+                              year: 'numeric' 
+                            })}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
+                )}
 
-          {savedGame && !loading && (
-            <button className={styles.resumeButton} onClick={resumeGame}>
-              Resume Last Session
-            </button>
-          )}
 
-          {error && (
-            <div className={styles.errorCard}>
-              <h3>Generation Troubleshooting</h3>
-              <p>{error}</p>
-              <div className={styles.troubleshootingSteps}>
-                <div><strong>• API Key:</strong> Ensure VITE_OPENROUTER_API_KEY in .env is correct.</div>
-                <div><strong>• Region:</strong> Check if your country is on the <a href="https://ai.google.dev/available_regions" target="_blank" rel="noreferrer">Gemini Availability List</a>.</div>
-                <div><strong>• Quota:</strong> You may have exceeded your daily limit.</div>
+
+                {error && (
+                  <div className={styles.errorCard}>
+                    <h3>Generation Troubleshooting</h3>
+                    <p>{error}</p>
+                    <div className={styles.troubleshootingSteps}>
+                      <div><strong>• API Key:</strong> Ensure VITE_OPENROUTER_API_KEY in .env is correct.</div>
+                      <div><strong>• Region:</strong> Check if your country is on the <a href="https://ai.google.dev/available_regions" target="_blank" rel="noreferrer">Gemini Availability List</a>.</div>
+                      <div><strong>• Quota:</strong> You may have exceeded your daily limit.</div>
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          )}
-        </div>
-      ) : (
-        <Suspense fallback={
-          <div className={`${styles.loadingOverlay} ${styles.shimmer}`}>
-            <div className={styles.pulse} />
-            <h2 style={{ color: '#38bdf8', fontSize: '1.5rem' }}>Loading Game Engine...</h2>
-          </div>
-        }>
-          <CrosswordBoardLazy 
-            initialData={gameState} 
-            apiKey={apiKey}
-            onRestart={() => setGameState(null)}
-            onExit={() => {
-              setGameState(null);
-              if (onGameComplete) onGameComplete(gameState);
-            }}
-          />
-        </Suspense>
-      )}
+            ) : (
+              <Suspense fallback={
+                <div className={`${styles.loadingOverlay} ${styles.shimmer}`}>
+                  <div className={styles.pulse} />
+                  <h2 style={{ color: '#38bdf8', fontSize: '1.5rem' }}>Loading Game Engine...</h2>
+                </div>
+              }>
+                <CrosswordBoardLazy 
+                  initialData={gameState} 
+                  apiKey={apiKey}
+                  onRestart={() => setGameState(null)}
+                  onExit={() => {
+                    setGameState(null);
+                    if (onGameComplete) onGameComplete(gameState);
+                  }}
+                />
+              </Suspense>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

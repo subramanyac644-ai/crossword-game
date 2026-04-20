@@ -60,6 +60,7 @@ export interface GameState {
   hasWon: boolean;
   isSubmitted?: boolean;
   isViewMode?: boolean;
+  isAnswerMode?: boolean;
   elapsedSeconds?: number;
   completedWords?: string[];
 }

@@ -56,7 +56,9 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
       score: state.score,
       hintsUsed: state.hintsUsed,
       elapsedSeconds: state.elapsedSeconds || 0,
-      completedWords: state.completedWords
+      completedWords: state.completedWords,
+      correctCount: state.completedWords.length,
+      incorrectCount: initialData.words.length - state.completedWords.length
     });
     setIsSaved(true);
     setSaveStatus('Puzzle Saved!');
@@ -76,39 +78,50 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
           </button>
           <h1>{initialData.metadata.title}</h1>
           {state.isViewMode && (
-            <div style={{ 
-              background: 'rgba(56, 189, 248, 0.1)', 
-              color: '#38bdf8', 
-              padding: '0.4rem 1rem', 
-              borderRadius: '0.5rem',
-              fontSize: '0.85rem',
-              fontWeight: 'bold',
-              border: '1px solid rgba(56, 189, 248, 0.2)',
-              marginLeft: '1rem'
-            }}>
-              Viewing Saved Puzzle (Answers Mode)
-            </div>
+            <button 
+              onClick={handlers.toggleAnswerMode}
+              className={styles.viewModeToggle}
+              style={{ 
+                background: state.isAnswerMode ? '#22c55e' : 'rgba(56, 189, 248, 0.1)', 
+                color: state.isAnswerMode ? 'white' : '#38bdf8', 
+                padding: '0.4rem 1rem', 
+                borderRadius: '0.5rem',
+                fontSize: '0.85rem',
+                fontWeight: 'bold',
+                border: `1px solid ${state.isAnswerMode ? '#22c55e' : 'rgba(56, 189, 248, 0.2)'}`,
+                marginLeft: '1rem',
+                cursor: 'pointer',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+            >
+              {state.isAnswerMode ? "Viewing Correct Answers ✓" : "Viewing Saved Puzzle (Answers Mode)"}
+            </button>
           )}
         </div>
         <div className={styles.statsBar}>
           {state.isViewMode ? (
-            <>
-              <span>
-                Time: <span style={{ color: 'var(--accent-primary)' }}>{new Date((state.elapsedSeconds || 0) * 1000).toISOString().substr(14, 5)}</span>
-              </span>
-              <span>
-                Score: <span style={{ color: 'var(--accent-primary)' }}>{state.score}</span>
-              </span>
-              <span>
-                Hints: <span style={{ color: 'var(--accent-secondary)' }}>{state.hintsUsed}</span>
-              </span>
-              <span>
-                Correct: <span style={{ color: '#22c55e' }}>{state.completedWords.length}</span>
-              </span>
-              <span>
-                Incorrect: <span style={{ color: '#ef4444' }}>{initialData.words.length - state.completedWords.length}</span>
-              </span>
-            </>
+            <div className={styles.statsCardGrid}>
+              <div className={styles.statItem}>
+                <span className={styles.statLabel}>⏱ Time Taken</span>
+                <span className={styles.statValue}>{new Date((state.elapsedSeconds || 0) * 1000).toISOString().substr(14, 5)}</span>
+              </div>
+              <div className={styles.statItem}>
+                <span className={styles.statLabel}>🧮 Score</span>
+                <span className={styles.statValue}>{state.score}</span>
+              </div>
+              <div className={styles.statItem}>
+                <span className={styles.statLabel}>💡 Hints</span>
+                <span className={styles.statValue}>{state.hintsUsed}</span>
+              </div>
+              <div className={styles.statItem}>
+                <span className={styles.statLabel}>✅ Correct</span>
+                <span className={styles.statValue} style={{ color: '#22c55e' }}>{state.completedWords.length}</span>
+              </div>
+              <div className={styles.statItem}>
+                <span className={styles.statLabel}>❌ Incorrect</span>
+                <span className={styles.statValue} style={{ color: '#ef4444' }}>{initialData.words.length - state.completedWords.length}</span>
+              </div>
+            </div>
           ) : (
             <>
               <span>
@@ -246,6 +259,8 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
           onCellKeyDown={handlers.handleCellKeyDown}
           onCellClick={handlers.handleCellClick}
           isSubmitted={state.isSubmitted}
+          isViewMode={state.isViewMode}
+          isAnswerMode={state.isAnswerMode}
         />
 
         <ClueList

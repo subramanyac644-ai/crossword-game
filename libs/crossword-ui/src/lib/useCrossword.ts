@@ -65,6 +65,13 @@ export function useCrossword({ initialData, onComplete, onRestart, apiKey }: Use
   });
 
   const [isViewMode] = useState<boolean>(!!initialData.isViewMode);
+  const [isAnswerMode, setIsAnswerMode] = useState<boolean>(!!initialData.isAnswerMode);
+
+  const toggleAnswerMode = () => {
+    if (isViewMode) {
+      setIsAnswerMode(prev => !prev);
+    }
+  };
 
   useEffect(() => {
     let interval: any;
@@ -81,22 +88,7 @@ export function useCrossword({ initialData, onComplete, onRestart, apiKey }: Use
     localStorage.setItem(STORAGE_KEY, JSON.stringify(fullState));
   }, [grid, score, hintsUsed, completedWords, elapsedSeconds, hasWon, isSubmitted, isViewMode, STORAGE_KEY, initialData]);
 
-  // Compute viewing results for isViewMode
-  useEffect(() => {
-    if (isViewMode) {
-      console.log("Computing viewing results for Saved Puzzle...");
-      setGrid(prev => prev.map(row => 
-        row.map(cell => {
-          if (cell.isBlocked) return cell;
-          const isCorrect = (cell.userLetter || '').toUpperCase() === cell.correctLetter.toUpperCase();
-          return {
-            ...cell,
-            status: isCorrect ? 'correct' : 'error' // Correct -> green, Wrong/Empty -> red
-          };
-        })
-      ));
-    }
-  }, [isViewMode]);
+
 
   const activeWordId = useMemo(() => {
     return initialData.words.find((w) => {
@@ -330,6 +322,7 @@ export function useCrossword({ initialData, onComplete, onRestart, apiKey }: Use
       hasWon,
       isSubmitted,
       isViewMode,
+      isAnswerMode,
     },
     handlers: {
       handleCellChange,
@@ -342,6 +335,7 @@ export function useCrossword({ initialData, onComplete, onRestart, apiKey }: Use
       handleCheckWord,
       handleCheckPuzzle,
       handleRestart,
+      toggleAnswerMode,
     }
   };
 }

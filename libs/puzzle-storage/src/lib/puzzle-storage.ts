@@ -10,6 +10,8 @@ export interface Puzzle {
   hintsUsed?: number;
   elapsedSeconds?: number;
   completedWords?: string[];
+  correctCount?: number;
+  incorrectCount?: number;
 }
 
 const STORAGE_KEY = 'crossword_puzzles';

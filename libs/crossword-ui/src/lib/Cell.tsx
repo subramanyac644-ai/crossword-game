@@ -11,6 +11,7 @@ interface CellProps {
   onClick?: () => void;
   isSubmitted?: boolean;
   isViewMode?: boolean;
+  isAnswerMode?: boolean;
 }
 
 const CellRenderer: React.FC<CellProps> = ({
@@ -35,14 +36,18 @@ const CellRenderer: React.FC<CellProps> = ({
     return <div className={`${styles.cellWrapper} ${styles.cellBlock}`} />;
   }
 
+  const isCorrectInAnswerMode = isViewMode && isAnswerMode && 
+    (cell.userLetter || '').toUpperCase() === cell.correctLetter.toUpperCase();
+  const isErrorInAnswerMode = isViewMode && isAnswerMode && !isCorrectInAnswerMode;
+
   return (
     <div
       className={`${styles.cellWrapper} ${
         isActiveWord ? styles.cellActiveWord : ''
       } ${
-        cell.status === 'correct' ? styles.cellCorrect : ''
+        (cell.status === 'correct' || isCorrectInAnswerMode) ? styles.cellCorrect : ''
       } ${
-        cell.status === 'error' ? styles.cellError : ''
+        (cell.status === 'error' || isErrorInAnswerMode) ? styles.cellError : ''
       } ${
         isViewMode ? styles.cellViewMode : ''
       }`}
@@ -52,7 +57,7 @@ const CellRenderer: React.FC<CellProps> = ({
         ref={inputRef}
         className={styles.cellInput}
         maxLength={1}
-        value={isViewMode ? cell.correctLetter : cell.userLetter}
+        value={(isViewMode && isAnswerMode) ? cell.correctLetter : (cell.userLetter || '')}
         onChange={(e) => onChange(e.currentTarget.value)}
         onKeyDown={onKeyDown}
         onFocus={onFocus}
@@ -74,6 +79,7 @@ export const CellComponent = React.memo(CellRenderer, (prevProps, nextProps) => 
     prevProps.cell.isFocused === nextProps.cell.isFocused &&
     prevProps.cell.status === nextProps.cell.status &&
     prevProps.isSubmitted === nextProps.isSubmitted &&
-    prevProps.isViewMode === nextProps.isViewMode
+    prevProps.isViewMode === nextProps.isViewMode &&
+    prevProps.isAnswerMode === nextProps.isAnswerMode
   );
 });

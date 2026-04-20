@@ -14,6 +14,7 @@ interface GridProps {
   onCellClick?: (row: number, col: number) => void;
   isSubmitted?: boolean;
   isViewMode?: boolean;
+  isAnswerMode?: boolean;
 }
 
 export const Grid: React.FC<GridProps> = ({
@@ -27,6 +28,7 @@ export const Grid: React.FC<GridProps> = ({
   onCellClick,
   isSubmitted,
   isViewMode,
+  isAnswerMode,
 }) => {
   const activeWord = words.find((w) => w.id === activeWordId);
 
@@ -59,6 +61,7 @@ export const Grid: React.FC<GridProps> = ({
             onClick={() => onCellClick?.(ri, ci)}
             isSubmitted={isSubmitted}
             isViewMode={isViewMode}
+            isAnswerMode={isAnswerMode}
           />
         ))
       )}
