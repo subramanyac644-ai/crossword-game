@@ -86,7 +86,7 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
           <div className="absolute left-1/2 -translate-x-1/2">
             <h1 className="flex items-baseline gap-3 font-medium text-slate-200">
               <span className="text-2xl font-black text-sky-400 tracking-tighter drop-shadow-[0_0_15px_rgba(56,189,248,0.3)] uppercase">{cleanTitle}</span>
-              <span className="text-2xl font-black text-sky-400 tracking-tighter drop-shadow-[0_0_15px_rgba(56,189,248,0.3)]">Crossword</span>
+              <span className="text-2xl font-black text-sky-400 tracking-tighter drop-shadow-[0_0_15px_rgba(56,189,248,0.3)] uppercase">Crossword</span>
             </h1>
           </div>
 
