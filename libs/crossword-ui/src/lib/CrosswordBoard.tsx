@@ -141,19 +141,19 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
                 >
                   {state.isSubmitted ? 'SUBMITTED' : 'Submit Puzzle'}
                 </button>
+                <button
+                  className={`px-6 py-2 rounded-xl text-xs font-bold transition-all ${
+                    isSaved 
+                    ? 'bg-slate-800 text-slate-500 border border-slate-700' 
+                    : 'bg-[#38bdf8] text-[#0f172a] hover:bg-[#0ea5e9]'
+                  }`}
+                  onClick={handleSave}
+                  disabled={isSaved}
+                >
+                  {isSaved ? "Saved ✓" : "Save Puzzle"}
+                </button>
               </>
             )}
-            <button
-              className={`px-6 py-2 rounded-xl text-xs font-bold transition-all ${
-                isSaved 
-                ? 'bg-slate-800 text-slate-500 border border-slate-700' 
-                : 'bg-[#38bdf8] text-[#0f172a] hover:bg-[#0ea5e9]'
-              }`}
-              onClick={handleSave}
-              disabled={isSaved}
-            >
-              {isSaved ? "Saved ✓" : "Save Puzzle"}
-            </button>
           </div>
         </div>
 
