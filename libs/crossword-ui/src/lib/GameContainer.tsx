@@ -95,7 +95,7 @@ export const GameContainer: React.FC<GameContainerProps> = ({
       }
 
       const engine = await CrosswordEngine.createFromTopic(promptQuery, apiKey, {
-        title: documentName ? `${documentName} Puzzle` : `${promptQuery} Crossword`,
+        title: documentName || promptQuery,
         author: 'GPT-4o mini',
       }, difficulty);
       

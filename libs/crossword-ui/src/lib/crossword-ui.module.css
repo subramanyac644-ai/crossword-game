@@ -1,28 +1,33 @@
 :root {
-  --bg-dark: #0f172a;
-  --bg-card: rgba(30, 41, 59, 0.7);
+  --bg-dark: #0a0f1a;
+  --bg-card: rgba(15, 23, 42, 0.6);
   --accent-primary: #38bdf8;
-  --accent-secondary: #c084fc;
-  --text-main: #f8fafc;
+  --accent-secondary: #818cf8;
+  --accent-success: #10b881;
+  --accent-error: #f43f5e;
+  --text-main: #f1f5f9;
   --text-muted: #94a3b8;
-  --cell-bg: #1e293b;
-  --cell-border: #334155;
-  --cell-focus: rgba(56, 189, 248, 0.3);
-  --cell-active-word: rgba(192, 132, 252, 0.15);
-  --cell-correct: #22c55e;
+  --cell-bg: rgba(30, 41, 59, 0.4);
+  --cell-border: transparent;
+  --cell-focus: rgba(56, 189, 248, 0.15);
+  --cell-active-word: rgba(129, 140, 248, 0.1);
+  --cell-correct: #10b881;
   --cell-block: #020617;
-  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.05);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
 }
 
 .boardContainer {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-  padding: 2rem;
+  padding: 2.5rem;
   background-color: var(--bg-dark);
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(129, 140, 248, 0.05) 0px, transparent 50%);
   min-height: 100vh;
   color: var(--text-main);
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'Outfit', 'Inter', system-ui, sans-serif;
 }
 
 .boardHeader {
@@ -112,16 +117,30 @@
   background: transparent;
   color: inherit;
   text-align: center;
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.6rem;
+  font-weight: 900;
   text-transform: uppercase;
   outline: none;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cellWrapper {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  background-color: var(--cell-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 4px;
 }
 
 .cellInput:focus {
   background-color: var(--cell-focus);
+  box-shadow: inset 0 0 0 2px var(--accent-primary);
+  border-radius: 4px;
 }
 
 .cellActiveWord {
@@ -129,8 +148,8 @@
 }
 
 .cellCorrect {
-  background-color: rgba(34, 197, 94, 0.15); /* green tint */
-  color: #22c55e;
+  background-color: rgba(16, 184, 129, 0.1);
+  color: var(--accent-success);
 }
 
 .cellCorrect:focus {
