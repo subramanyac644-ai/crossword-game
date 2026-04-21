@@ -83,11 +83,11 @@ export const AnimatedLanding: React.FC<AnimatedLandingProps> = ({ onComplete }) 
               transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
               className="relative"
             >
-              <h1 className="text-8xl md:text-[11rem] font-black tracking-tighter leading-none select-none">
+              <h1 className="text-7xl md:text-[9.5rem] font-black tracking-tighter leading-none select-none">
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#38bdf8] via-[#60a5fa] to-white drop-shadow-[0_0_40px_rgba(56,189,248,0.3)]">
                   Crossword
                 </span>
-                <span className="ml-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-[#a78bfa] to-[#c084fc] drop-shadow-[0_0_40px_rgba(167,139,250,0.3)]">
+                <span className="ml-4 bg-clip-text text-transparent bg-gradient-to-r from-white via-[#a78bfa] to-[#c084fc] drop-shadow-[0_0_40px_rgba(167,139,250,0.3)]">
                   Hub
                 </span>
               </h1>
