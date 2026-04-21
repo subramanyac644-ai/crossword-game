@@ -37,7 +37,7 @@ const CellRenderer: React.FC<CellProps> = ({
     return <div className={`${styles.cellWrapper} ${styles.cellBlock}`} />;
   }
 
-  const isCorrectInAnswerMode = (isViewMode && isAnswerMode) || isSubmitted;
+  const isCorrectInAnswerMode = isViewMode || isSubmitted;
 
   return (
     <div
