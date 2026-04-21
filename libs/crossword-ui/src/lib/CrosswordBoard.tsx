@@ -209,7 +209,7 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
         />
       </main>
 
-      {state.hasWon && (
+      {state.hasWon && !state.isViewMode && (
         <WinModal 
           score={state.score} 
           hintsUsed={state.hintsUsed} 
