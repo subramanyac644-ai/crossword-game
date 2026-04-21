@@ -38,7 +38,6 @@ const CellRenderer: React.FC<CellProps> = ({
   }
 
   const isCorrectInAnswerMode = (isViewMode && isAnswerMode) || isSubmitted;
-  const isErrorInAnswerMode = false; // We don't show errors once submitted or in full answer mode
 
   return (
     <div
