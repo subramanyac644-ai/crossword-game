@@ -48,7 +48,16 @@ export const GameContainer: React.FC<GameContainerProps> = ({
 
 
   const loadSavedPuzzle = (puzzle: Puzzle) => {
-    console.log("Loading saved puzzle:", puzzle.topic, puzzle.id);
+    console.log("STORAGE: Loading puzzle from gallery:", puzzle);
+    
+    // Data Validation: Ensure correct letters exist
+    const missingData = puzzle.grid.some(row => 
+      row.some(cell => !cell.isBlocked && !cell.correctLetter)
+    );
+    if (missingData) {
+      console.error("STORAGE ERROR: Saved puzzle is missing correctLetter data! Logic will fail.");
+    }
+
     // Construct a fresh GameState from the saved puzzle definition
     const freshState: GameState = {
       grid: puzzle.grid,
@@ -61,11 +70,11 @@ export const GameContainer: React.FC<GameContainerProps> = ({
         title: puzzle.topic,
         author: 'GPT-4o mini'
       },
-      hasWon: false,
+      hasWon: puzzle.isSubmitted || false,
       completedWords: puzzle.completedWords || [],
       elapsedSeconds: puzzle.elapsedSeconds || 0,
-      isSubmitted: false, // Puzzles loaded from the static "Saved" gallery start fresh
-      isViewMode: true // ALWAYS open saved gallery items in read-only view mode
+      isSubmitted: puzzle.isSubmitted || false, 
+      isViewMode: true 
     };
     setGameState(freshState);
   };
@@ -83,11 +92,8 @@ export const GameContainer: React.FC<GameContainerProps> = ({
     setLoading(true);
     setError(null);
     try {
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('crossword_save_')) {
-          localStorage.removeItem(key);
-        }
-      });
+      // REMOVED: Auto-deletion of crossword_save_ keys.
+      // This was causing data loss for in-progress games.
 
 
       if (!apiKey) {

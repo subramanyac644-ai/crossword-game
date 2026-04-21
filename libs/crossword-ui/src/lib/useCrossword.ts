@@ -13,29 +13,30 @@ export interface UseCrosswordConfig {
 export function useCrossword({ initialData, onComplete, onRestart, apiKey }: UseCrosswordConfig) {
   const STORAGE_KEY = `crossword_save_${initialData.metadata.title}`;
 
-  const [grid, setGrid] = useState<Cell[][]>(() => {
+  // Consolidate initial state loading
+  const savedState = useMemo(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
-      try { return JSON.parse(saved).grid; } catch (e) { return initialData.grid; }
+      try {
+        const parsed = JSON.parse(saved);
+        console.log(`STORAGE: Recovering state for "${initialData.metadata.title}":`, parsed);
+        return parsed;
+      } catch (e) {
+        console.error("STORAGE: Failed to parse saved state", e);
+      }
     }
-    return initialData.grid;
-  });
+    return null;
+  }, [STORAGE_KEY, initialData.metadata.title]);
 
-  const [score, setScore] = useState<number>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? JSON.parse(saved).score : 0;
-  });
-
-  const [hintsUsed, setHintsUsed] = useState<number>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    return saved && JSON.parse(saved).hintsUsed !== undefined ? JSON.parse(saved).hintsUsed : 0;
-  });
-
-  const [completedWords, setCompletedWords] = useState<string[]>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    return saved && JSON.parse(saved).completedWords ? JSON.parse(saved).completedWords : [];
-  });
-
+  const [grid, setGrid] = useState<Cell[][]>(() => savedState?.grid || initialData.grid);
+  const [score, setScore] = useState<number>(() => savedState?.score || 0);
+  const [hintsUsed, setHintsUsed] = useState<number>(() => savedState?.hintsUsed ?? 0);
+  const [completedWords, setCompletedWords] = useState<string[]>(() => savedState?.completedWords || []);
+  const [elapsedSeconds, setElapsedSeconds] = useState<number>(() => savedState?.elapsedSeconds || 0);
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(() => savedState?.isSubmitted ?? initialData.isSubmitted ?? false);
+  const [isAnswerMode, setIsAnswerMode] = useState<boolean>(() => savedState?.isAnswerMode ?? initialData.isAnswerMode ?? false);
+  const [hasWon, setHasWon] = useState(() => savedState?.hasWon ?? initialData.hasWon ?? false);
+  
   const [focus, setFocus] = useState<{ row: number; col: number }>(() => {
     if (initialData.words && initialData.words.length > 0) {
       return initialData.words[0].start;
@@ -52,20 +53,7 @@ export function useCrossword({ initialData, onComplete, onRestart, apiKey }: Use
 
   const [aiHint, setAiHint] = useState<string | null>(null);
   const [isHintLoading, setIsHintLoading] = useState(false);
-  const [elapsedSeconds, setElapsedSeconds] = useState<number>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    return saved && JSON.parse(saved).elapsedSeconds ? JSON.parse(saved).elapsedSeconds : 0;
-  });
-
-  const [hasWon, setHasWon] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState<boolean>(() => {
-    if (initialData.isSubmitted) return true;
-    const saved = localStorage.getItem(STORAGE_KEY);
-    return saved && JSON.parse(saved).isSubmitted !== undefined ? JSON.parse(saved).isSubmitted : false;
-  });
-
   const [isViewMode] = useState<boolean>(!!initialData.isViewMode);
-  const [isAnswerMode, setIsAnswerMode] = useState<boolean>(!!initialData.isAnswerMode);
 
   const toggleAnswerMode = () => {
     if (isViewMode) {

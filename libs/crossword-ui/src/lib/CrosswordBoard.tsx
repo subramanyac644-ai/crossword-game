@@ -52,7 +52,7 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
   const handleSave = () => {
     if (isSaved) return;
 
-    savePuzzle({
+    const puzzleData = {
       id: `puzzle_${Date.now()}`,
       topic: initialData.metadata.title,
       words: initialData.words,
@@ -63,8 +63,12 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
       elapsedSeconds: state.elapsedSeconds || 0,
       completedWords: state.completedWords,
       correctCount: state.completedWords.length,
-      incorrectCount: initialData.words.length - state.completedWords.length
-    });
+      incorrectCount: initialData.words.length - state.completedWords.length,
+      isSubmitted: state.isSubmitted
+    };
+
+    console.log("STORAGE: Manually saving puzzle to gallery:", puzzleData);
+    savePuzzle(puzzleData);
     setIsSaved(true);
     setSaveStatus('Puzzle Saved!');
     setTimeout(() => setSaveStatus(null), 3000);

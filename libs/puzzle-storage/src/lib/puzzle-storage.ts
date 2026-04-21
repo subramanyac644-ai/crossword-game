@@ -12,11 +12,13 @@ export interface Puzzle {
   completedWords?: string[];
   correctCount?: number;
   incorrectCount?: number;
+  isSubmitted?: boolean;
 }
 
 const STORAGE_KEY = 'crossword_puzzles';
 
 export function savePuzzle(puzzle: Puzzle): void {
+  console.log("STORAGE: Saving puzzle to gallery:", puzzle);
   const current = getSavedPuzzles();
   const existingIndex = current.findIndex(p => p.id === puzzle.id);
   if (existingIndex >= 0) {

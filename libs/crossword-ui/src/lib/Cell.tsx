@@ -37,9 +37,8 @@ const CellRenderer: React.FC<CellProps> = ({
     return <div className={`${styles.cellWrapper} ${styles.cellBlock}`} />;
   }
 
-  const isCorrectInAnswerMode = isViewMode && isAnswerMode && 
-    (cell.userLetter || '').toUpperCase() === cell.correctLetter.toUpperCase();
-  const isErrorInAnswerMode = isViewMode && isAnswerMode && !isCorrectInAnswerMode;
+  const isCorrectInAnswerMode = (isViewMode && isAnswerMode) || isSubmitted;
+  const isErrorInAnswerMode = false; // We don't show errors once submitted or in full answer mode
 
   return (
     <div
@@ -48,7 +47,7 @@ const CellRenderer: React.FC<CellProps> = ({
       } ${
         (cell.status === 'correct' || isCorrectInAnswerMode) ? styles.cellCorrect : ''
       } ${
-        (cell.status === 'error' || isErrorInAnswerMode) ? styles.cellError : ''
+        (cell.status === 'error' && !isSubmitted) ? styles.cellError : ''
       } ${
         isViewMode ? styles.cellViewMode : ''
       }`}
@@ -58,7 +57,7 @@ const CellRenderer: React.FC<CellProps> = ({
         ref={inputRef}
         className={styles.cellInput}
         maxLength={1}
-        value={(isViewMode && isAnswerMode) ? cell.correctLetter : (cell.userLetter || '')}
+        value={isCorrectInAnswerMode ? cell.correctLetter : (cell.userLetter || '')}
         onChange={(e) => onChange(e.currentTarget.value)}
         onKeyDown={onKeyDown}
         onFocus={onFocus}
