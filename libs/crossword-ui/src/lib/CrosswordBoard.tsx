@@ -100,18 +100,22 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
         {/* Row 2: Unified Stats & Action Buttons (One Neat Path) */}
         <div className="flex flex-wrap items-center gap-x-10 gap-y-4 px-2">
           {/* Stats Badges */}
-          <div className="flex items-center gap-1.5 text-sm font-bold">
-            <span className="text-white">Words:</span>
-            <span className="text-sky-400 font-black">{state.completedWords.length} / {initialData.words.length}</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-sm font-bold">
-            <span className="text-white">Score:</span>
-            <span className="text-sky-400 font-black">{state.score}</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-sm font-bold">
-            <span className="text-white">Hints:</span>
-            <span className="text-[#a855f7] font-black">{state.hintsUsed}</span>
-          </div>
+          {!state.isViewMode && (
+            <>
+              <div className="flex items-center gap-1.5 text-sm font-bold">
+                <span className="text-white">Words:</span>
+                <span className="text-sky-400 font-black">{state.completedWords.length} / {initialData.words.length}</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-sm font-bold">
+                <span className="text-white">Score:</span>
+                <span className="text-sky-400 font-black">{state.score}</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-sm font-bold">
+                <span className="text-white">Hints:</span>
+                <span className="text-[#a855f7] font-black">{state.hintsUsed}</span>
+              </div>
+            </>
+          )}
 
           {/* Action Buttons Sequence */}
           <div className="flex flex-wrap items-center gap-4">
