@@ -76,41 +76,36 @@ export const AnimatedLanding: React.FC<AnimatedLandingProps> = ({ onComplete }) 
             <div className="absolute -z-10 w-[600px] h-[400px] bg-blue-500/30 rounded-full blur-[150px] animate-pulse" />
             <div className="absolute -z-10 w-[400px] h-[400px] bg-indigo-600/20 rounded-full blur-[120px] animate-pulse delay-700" />
 
-            {/* Main Logo Text - MASSIVE SIZE & HIGH-END GRADIENT */}
+            {/* Main Logo Text - BIG SIZE & MATCHING COLOR */}
             <motion.div
-              initial={{ scale: 0.7, filter: 'blur(30px)', opacity: 0 }}
-              animate={{ scale: 1, filter: 'blur(0px)', opacity: 1 }}
-              transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1] }}
+              initial={{ scale: 0.85, filter: 'blur(20px)', y: 20 }}
+              animate={{ scale: 1, filter: 'blur(0px)', y: 0 }}
+              transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
               className="relative"
             >
-              <h1 className="text-8xl md:text-[13rem] font-black tracking-tighter leading-none select-none flex flex-col md:flex-row items-center justify-center">
-                <span className="bg-clip-text text-transparent bg-gradient-to-br from-sky-400 via-white to-sky-300 drop-shadow-[0_0_60px_rgba(56,189,248,0.4)]">
+              <h1 className="text-8xl md:text-[11rem] font-black tracking-tighter leading-none select-none">
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#38bdf8] via-[#60a5fa] to-white drop-shadow-[0_0_40px_rgba(56,189,248,0.3)]">
                   Crossword
                 </span>
-                <span className="md:ml-8 bg-clip-text text-transparent bg-gradient-to-br from-indigo-300 via-white to-purple-400 drop-shadow-[0_0_60px_rgba(167,139,250,0.4)]">
+                <span className="ml-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-[#a78bfa] to-[#c084fc] drop-shadow-[0_0_40px_rgba(167,139,250,0.3)]">
                   Hub
                 </span>
               </h1>
               
-              {/* Central Optical Flare - Bigger and brighter */}
+              {/* Central Optical Flare (The bright spot in the image) */}
               <motion.div 
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-sky-200 rounded-full blur-[80px] opacity-30 mix-blend-screen"
-                animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.4, 0.2] }}
-                transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-white rounded-full blur-2xl opacity-40 mix-blend-screen"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: [0, 1.5, 1], opacity: [0, 0.6, 0.4] }}
+                transition={{ delay: 0.5, duration: 1 }}
               />
               
-              {/* Double Horizontal Lens Streaks */}
+              {/* Horizontal Lens Streak */}
               <motion.div 
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[1px] w-[200%] bg-gradient-to-r from-transparent via-sky-400 to-transparent mix-blend-screen opacity-50"
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ delay: 0.8, duration: 1.2, ease: 'easeOut' }}
-              />
-              <motion.div 
-                className="absolute top-[48%] left-1/2 -translate-x-1/2 -translate-y-1/2 h-[3px] w-[180%] bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent mix-blend-screen"
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ delay: 1, duration: 1.5, ease: 'easeOut' }}
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[2px] w-[150%] bg-gradient-to-r from-transparent via-blue-400 to-transparent mix-blend-screen"
+                initial={{ scaleX: 0, opacity: 0 }}
+                animate={{ scaleX: 1, opacity: 0.6 }}
+                transition={{ delay: 0.7, duration: 0.8 }}
               />
             </motion.div>
             
