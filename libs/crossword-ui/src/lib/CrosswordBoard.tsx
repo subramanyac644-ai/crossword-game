@@ -34,6 +34,11 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
     apiKey
   });
 
+  const cleanTitle = initialData.metadata.title
+    .replace(/\s+Crossword$/i, '')
+    .replace(/\s+Puzzle$/i, '')
+    .toLowerCase();
+
   // Validation Check: Ensure data integrity
   React.useEffect(() => {
     const missingData = initialData.grid.some(row => 
@@ -79,8 +84,9 @@ export const CrosswordBoard: React.FC<CrosswordBoardProps> = ({
           </button>
 
           <div className="absolute left-1/2 -translate-x-1/2">
-            <h1 className="text-sm font-medium text-slate-200">
-              {initialData.metadata.title.toLowerCase()} Crossword
+            <h1 className="flex items-baseline gap-2 font-medium text-slate-200">
+              <span className="text-xs uppercase tracking-widest text-slate-400 opacity-80">{cleanTitle}</span>
+              <span className="text-2xl font-black text-sky-400 tracking-tighter drop-shadow-[0_0_15px_rgba(56,189,248,0.3)]">Crossword</span>
             </h1>
           </div>
 
